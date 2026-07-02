@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 2 | Sewing Emotions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=8">
+</head>
+<body class="maker-page">
+  <main class="maker-stage" aria-label="Customize emotion shape">
+    <aside class="color-panel">
+      <p class="instruction color-instruction">Choose a color for my body!</p>
+      <label class="color-picker-label" for="body-color">Body color</label>
+      <input id="body-color" class="color-picker" type="color" value="#A2C5E1">
+    </aside>
+
+    <section class="composition-frame" aria-label="Emotion body frame">
+      <div class="composition-surface" data-drop-zone="composition"></div>
+    </section>
+
+    <aside class="parts-panel">
+      <p class="instruction parts-instruction is-hidden">Choose arms and legs for me. Drag and drop a shape onto my body.</p>
+      <div class="parts-gallery" aria-label="Shape gallery"></div>
+    </aside>
+
+    <a class="finish-button is-disabled" href="step3.html" aria-disabled="true">Finish</a>
+  </main>
+
+  <script src="shared.js?v=8"></script>
+  <script src="step2.js?v=8"></script>
+</body>
+</html>
