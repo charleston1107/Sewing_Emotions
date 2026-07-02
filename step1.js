@@ -143,6 +143,7 @@ document.addEventListener("keydown", (event) => {
 selectButton.addEventListener("click", () => {
   const composition = loadComposition();
   composition.selectedShapeIndex = selectedIndex;
+  composition.bodyColor = "#FFFFFF";
   composition.parts = [];
   saveComposition(composition);
 });

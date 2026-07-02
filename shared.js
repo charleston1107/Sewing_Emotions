@@ -11,7 +11,7 @@ const SEWING_SHAPES = [
 
 const DEFAULT_COMPOSITION = {
   selectedShapeIndex: 0,
-  bodyColor: "#A2C5E1",
+  bodyColor: "#FFFFFF",
   parts: []
 };
 
