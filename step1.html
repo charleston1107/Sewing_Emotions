@@ -3,31 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Choose a Shape | Sewing Emotions</title>
+  <title>Build a Shape | Sewing Emotions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
-<body class="step-page">
+<body class="editor-page">
   <a class="last-step-button" href="index.html">Last Step</a>
-  <main class="carousel-stage" aria-label="Choose a shape">
-    <button class="carousel-arrow carousel-arrow-left" type="button" aria-label="Previous shape">
-      <span aria-hidden="true">&lt;</span>
-    </button>
+  <main class="editor-stage" aria-label="Build an emotion shape">
+    <aside class="editor-gallery editor-gallery-left" aria-label="Left shape gallery"></aside>
 
-    <section class="shape-carousel" aria-live="polite" aria-label="Shape carousel">
-      <div class="carousel-ring"></div>
+    <section class="editor-frame" aria-label="Editable shape frame">
+      <input class="editor-color-picker" type="color" value="#FFFFFF" aria-label="Selected shape color">
+      <div class="editor-surface" aria-label="Shape canvas"></div>
     </section>
 
-    <button class="carousel-arrow carousel-arrow-right" type="button" aria-label="Next shape">
-      <span aria-hidden="true">&gt;</span>
-    </button>
+    <aside class="editor-gallery editor-gallery-right" aria-label="Right shape gallery"></aside>
 
-    <a class="select-button" href="step2.html">Select</a>
+    <a class="finish-button editor-finish is-disabled" href="step3.html" aria-disabled="true">Finish</a>
   </main>
 
-  <script src="shared.js?v=9"></script>
-  <script src="step1.js?v=9"></script>
+  <script src="shared.js?v=10"></script>
+  <script src="step1.js?v=10"></script>
 </body>
 </html>

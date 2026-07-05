@@ -1,17 +1,23 @@
 const SEWING_SHAPES = [
   "assets/Ellipse 39.svg",
+  "assets/Ellipse 40.svg",
   "assets/Polygon 12.svg",
   "assets/Polygon 13.svg",
+  "assets/Polygon 14.svg",
   "assets/Rectangle 29.svg",
+  "assets/Rectangle leg 1.svg",
+  "assets/Rectangle leg 2.svg",
+  "assets/Rectangle leg 3.svg",
   "assets/Vector 45.svg",
+  "assets/Vector 47.svg",
+  "assets/Vector 48.svg",
   "assets/Vector 49.svg",
   "assets/Vector 50.svg",
+  "assets/Vector 52.svg",
   "assets/Vector 53.svg"
 ];
 
 const DEFAULT_COMPOSITION = {
-  selectedShapeIndex: 0,
-  bodyColor: "#FFFFFF",
   parts: []
 };
 
@@ -61,9 +67,6 @@ function createMaskedShape(path, color, className) {
 
 function renderComposition(surface, composition, options = {}) {
   surface.innerHTML = "";
-  const bodyPath = SEWING_SHAPES[wrapShapeIndex(composition.selectedShapeIndex)];
-  const body = createMaskedShape(bodyPath, composition.bodyColor, "body-shape");
-  surface.appendChild(body);
 
   composition.parts.forEach((part, index) => {
     const partPath = SEWING_SHAPES[wrapShapeIndex(part.shapeIndex)];
@@ -75,10 +78,6 @@ function renderComposition(surface, composition, options = {}) {
     partElement.style.transform = `translate(-50%, -50%) rotate(${part.rotation || 0}deg)`;
     surface.appendChild(partElement);
   });
-
-  if (options.returnBody) {
-    return body;
-  }
 
   return null;
 }
