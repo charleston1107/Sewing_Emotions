@@ -397,6 +397,43 @@ button {
   transform: translateX(-50%);
 }
 
+.generate-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.generate-status {
+  position: absolute;
+  left: 50%;
+  bottom: 92px;
+  width: min(520px, 70vw);
+  margin: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.generated-result {
+  position: absolute;
+  right: clamp(18px, 4vw, 56px);
+  bottom: clamp(18px, 5vw, 54px);
+  display: grid;
+  place-items: center;
+  width: min(22vw, 230px);
+  min-height: 0;
+}
+
+.generated-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 7px;
+  box-shadow: 0 16px 28px rgba(96, 59, 39, 0.14);
+}
+
 .maker-stage,
 .drawing-stage {
   position: relative;
