@@ -6,9 +6,7 @@ const ROOT_DIR = __dirname;
 loadEnvFile();
 
 const PORT = Number(process.env.PORT || 8000);
-const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
-const IMAGE_SIZE = process.env.OPENAI_IMAGE_SIZE || "1024x1024";
-const IMAGE_QUALITY = process.env.OPENAI_IMAGE_QUALITY || "auto";
+const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image-preview";
 const MAX_JSON_BYTES = 16 * 1024 * 1024;
 
 const mimeTypes = {
@@ -106,10 +104,10 @@ function serveStatic(request, response) {
 }
 
 async function handleGenerateImage(request, response) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey || apiKey === "put_your_api_key_here") {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === "put_your_gemini_api_key_here") {
     sendJson(response, 500, {
-      error: "Missing OPENAI_API_KEY. Add it to .env or export it in your shell before starting the server."
+      error: "Missing GEMINI_API_KEY. Add it to .env or Render environment variables before starting the server."
     });
     return;
   }
@@ -118,22 +116,7 @@ async function handleGenerateImage(request, response) {
   const prompt = buildImagePrompt(body);
   const boardImage = typeof body.boardImage === "string" ? body.boardImage : "";
 
-  let result;
-  if (boardImage.startsWith("data:image/")) {
-    try {
-      result = await callImageEdit(apiKey, prompt, boardImage);
-    } catch (error) {
-      if (isAuthError(error)) {
-        throw error;
-      }
-
-      console.warn(`Image edit failed, falling back to prompt-only generation: ${error.message}`);
-      result = await callImageGeneration(apiKey, prompt);
-      result.warning = "The image-reference edit failed, so the server generated from the text prompt only.";
-    }
-  } else {
-    result = await callImageGeneration(apiKey, prompt);
-  }
+  const result = await callGeminiImageGeneration(apiKey, prompt, boardImage);
 
   sendJson(response, 200, result);
 }
@@ -196,64 +179,75 @@ function shapeNameFromPath(shapeIndex) {
   return pathName || `shape ${shapeIndex}`;
 }
 
-async function callImageEdit(apiKey, prompt, dataUrl) {
-  const { mimeType, buffer } = parseDataUrl(dataUrl);
-  const form = new FormData();
-  form.append("model", IMAGE_MODEL);
-  form.append("prompt", prompt);
-  form.append("size", IMAGE_SIZE);
-  form.append("quality", IMAGE_QUALITY);
-  form.append("image", new Blob([buffer], { type: mimeType }), "drawing-board.png");
+async function callGeminiImageGeneration(apiKey, prompt, boardImage) {
+  const parts = [{ text: prompt }];
 
-  const apiResponse = await fetch("https://api.openai.com/v1/images/edits", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`
-    },
-    body: form
-  });
+  if (boardImage.startsWith("data:image/")) {
+    const { mimeType, buffer } = parseDataUrl(boardImage);
+    parts.push({
+      inline_data: {
+        mime_type: mimeType,
+        data: buffer.toString("base64")
+      }
+    });
+  }
 
-  return parseOpenAIImageResponse(apiResponse);
+  const model = GEMINI_IMAGE_MODEL.replace(/^models\//, "");
+  const apiResponse = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts
+          }
+        ],
+        generationConfig: {
+          responseModalities: ["TEXT", "IMAGE"]
+        }
+      })
+    }
+  );
+
+  return parseGeminiImageResponse(apiResponse);
 }
 
-async function callImageGeneration(apiKey, prompt) {
-  const apiResponse = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: IMAGE_MODEL,
-      prompt,
-      size: IMAGE_SIZE,
-      quality: IMAGE_QUALITY
-    })
-  });
-
-  return parseOpenAIImageResponse(apiResponse);
-}
-
-async function parseOpenAIImageResponse(apiResponse) {
+async function parseGeminiImageResponse(apiResponse) {
   const json = await apiResponse.json().catch(() => ({}));
 
   if (!apiResponse.ok) {
-    const message = json.error?.message || `OpenAI API request failed with status ${apiResponse.status}`;
+    const message = json.error?.message || `Gemini API request failed with status ${apiResponse.status}`;
     const error = new Error(message);
     error.status = apiResponse.status;
     throw error;
   }
 
-  const image = json.data?.[0];
-  if (image?.b64_json) {
-    return { imageUrl: `data:image/png;base64,${image.b64_json}` };
+  const parts = (json.candidates || []).flatMap((candidate) => candidate.content?.parts || []);
+  const imagePart = parts.find((part) => {
+    const inlineData = part.inlineData || part.inline_data;
+    return inlineData?.data;
+  });
+
+  if (imagePart) {
+    const inlineData = imagePart.inlineData || imagePart.inline_data;
+    const mimeType = inlineData.mimeType || inlineData.mime_type || "image/png";
+    const result = { imageUrl: `data:${mimeType};base64,${inlineData.data}` };
+    const text = parts.map((part) => part.text).filter(Boolean).join("\n").trim();
+
+    if (text) {
+      result.note = text;
+    }
+
+    return result;
   }
 
-  if (image?.url) {
-    return { imageUrl: image.url };
-  }
-
-  throw new Error("OpenAI response did not include an image.");
+  const text = parts.map((part) => part.text).filter(Boolean).join("\n").trim();
+  throw new Error(text || "Gemini response did not include an image.");
 }
 
 function parseDataUrl(dataUrl) {
@@ -266,10 +260,6 @@ function parseDataUrl(dataUrl) {
     mimeType: match[1],
     buffer: Buffer.from(match[2], "base64")
   };
-}
-
-function isAuthError(error) {
-  return error.status === 401 || error.status === 403;
 }
 
 function sendJson(response, status, data) {

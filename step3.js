@@ -73,7 +73,7 @@ generateButton.addEventListener("click", async () => {
 
   try {
     const boardImage = await exportBoardImage();
-    generateStatus.textContent = "Asking OpenAI to reinterpret your shape...";
+    generateStatus.textContent = "Asking Gemini to reinterpret your shape...";
 
     const response = await fetch("/api/generate-image", {
       method: "POST",
