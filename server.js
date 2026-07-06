@@ -6,7 +6,11 @@ const ROOT_DIR = __dirname;
 loadEnvFile();
 
 const PORT = Number(process.env.PORT || 8000);
-const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image-preview";
+const DEFAULT_GEMINI_IMAGE_MODELS = [
+  "gemini-2.5-flash-image-lite",
+  "gemini-2.5-flash-image"
+];
+const GEMINI_IMAGE_MODELS = getGeminiImageModels();
 const MAX_JSON_BYTES = 16 * 1024 * 1024;
 
 const mimeTypes = {
@@ -192,7 +196,27 @@ async function callGeminiImageGeneration(apiKey, prompt, boardImage) {
     });
   }
 
-  const model = GEMINI_IMAGE_MODEL.replace(/^models\//, "");
+  const errors = [];
+
+  for (const model of GEMINI_IMAGE_MODELS) {
+    try {
+      return await callGeminiGenerateContent(apiKey, model, parts);
+    } catch (error) {
+      errors.push(`${model}: ${error.message}`);
+
+      if (!isModelAvailabilityError(error) || model === GEMINI_IMAGE_MODELS.at(-1)) {
+        throw new Error(errors.join("\n"));
+      }
+
+      console.warn(`Gemini model ${model} failed, trying next model: ${error.message}`);
+    }
+  }
+
+  throw new Error("No Gemini image models were configured.");
+}
+
+async function callGeminiGenerateContent(apiKey, rawModel, parts) {
+  const model = rawModel.replace(/^models\//, "");
   const apiResponse = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
     {
@@ -214,16 +238,17 @@ async function callGeminiImageGeneration(apiKey, prompt, boardImage) {
     }
   );
 
-  return parseGeminiImageResponse(apiResponse);
+  return parseGeminiImageResponse(apiResponse, model);
 }
 
-async function parseGeminiImageResponse(apiResponse) {
+async function parseGeminiImageResponse(apiResponse, model) {
   const json = await apiResponse.json().catch(() => ({}));
 
   if (!apiResponse.ok) {
     const message = json.error?.message || `Gemini API request failed with status ${apiResponse.status}`;
     const error = new Error(message);
     error.status = apiResponse.status;
+    error.model = model;
     throw error;
   }
 
@@ -248,6 +273,16 @@ async function parseGeminiImageResponse(apiResponse) {
 
   const text = parts.map((part) => part.text).filter(Boolean).join("\n").trim();
   throw new Error(text || "Gemini response did not include an image.");
+}
+
+function getGeminiImageModels() {
+  const configured = process.env.GEMINI_IMAGE_MODEL || process.env.GEMINI_IMAGE_MODELS || "";
+  const models = configured.split(",").map((model) => model.trim()).filter(Boolean);
+  return models.length ? models : DEFAULT_GEMINI_IMAGE_MODELS;
+}
+
+function isModelAvailabilityError(error) {
+  return error.status === 400 || error.status === 404;
 }
 
 function parseDataUrl(dataUrl) {
