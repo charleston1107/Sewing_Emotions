@@ -1,4 +1,5 @@
 const welcomeLine = document.querySelector(".welcome-line");
+const welcomeStage = document.querySelector(".welcome-stage");
 const breathingCircle = document.querySelector(".breathing-circle");
 const introLines = [
   "Before you start designing the plushie,",
@@ -31,8 +32,11 @@ function showIntroLine() {
 function startBreathing() {
   breathingCircle.classList.add("is-active");
   window.setTimeout(() => {
-    window.location.href = "step1.html";
-  }, 18000);
+    welcomeStage.classList.add("is-whiting-out");
+    window.setTimeout(() => {
+      window.location.href = "step1.html";
+    }, 1600);
+  }, 15000);
 }
 
 showIntroLine();
