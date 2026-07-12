@@ -4,6 +4,10 @@ const context = canvas.getContext("2d");
 const generateButton = document.querySelector(".generate-button");
 const generateStatus = document.querySelector(".generate-status");
 const brushToggle = document.querySelector(".brush-toggle");
+const brushPulse = document.querySelector(".brush-pulse");
+const instructionCloud = document.querySelector(".instruction-cloud");
+const instructionCloudText = document.querySelector(".instruction-cloud-text");
+const instructionCloudSkip = document.querySelector(".instruction-cloud-skip");
 const browGallery = document.querySelector(".face-gallery-brows");
 const eyeGallery = document.querySelector(".face-gallery-eyes");
 const mouthGallery = document.querySelector(".face-gallery-mouths");
@@ -12,6 +16,10 @@ const FACE_ASSETS = {
   eye: ["assets/face/eye_0.png", "assets/face/eye_1.png", "assets/face/eye_2.png", "assets/face/eye_3.png"],
   mouth: ["assets/face/mouth_0.png", "assets/face/mouth_1.png", "assets/face/mouth_2.png", "assets/face/mouth_3.png"]
 };
+const FACE_INSTRUCTIONS = [
+  "Drag and drop facial expressions to your plushie.",
+  "Optionally, you can use the brush to draw on your plushie's face."
+];
 
 const composition = loadComposition();
 composition.faceParts = Array.isArray(composition.faceParts) ? composition.faceParts : [];
@@ -21,8 +29,11 @@ let drawing = false;
 let drawingEnabled = false;
 let lastPoint = null;
 let activeDrag = null;
+let faceInstructionStep = 0;
+let faceInstructionsComplete = false;
 
 renderFaceGalleries();
+updateInstructionCloud();
 renderBoard();
 resizeCanvas();
 
@@ -214,6 +225,7 @@ function finishDrag(event) {
       rotation: 0
     });
     renderBoard();
+    showBrushInstruction();
   }
 
   saveComposition(composition);
@@ -235,6 +247,32 @@ function setDrawingEnabled(enabled) {
   brushToggle.setAttribute("aria-pressed", enabled ? "true" : "false");
   canvas.classList.toggle("is-drawing-enabled", enabled);
 }
+
+function updateInstructionCloud() {
+  instructionCloud.classList.toggle("is-hidden", faceInstructionsComplete);
+
+  if (!faceInstructionsComplete) {
+    instructionCloudText.textContent = FACE_INSTRUCTIONS[faceInstructionStep];
+  }
+}
+
+function showBrushInstruction() {
+  if (faceInstructionsComplete || faceInstructionStep === 1) {
+    return;
+  }
+
+  faceInstructionStep = 1;
+  updateInstructionCloud();
+  brushPulse.classList.add("is-active");
+  window.setTimeout(completeFaceInstructions, 3000);
+}
+
+function completeFaceInstructions() {
+  faceInstructionsComplete = true;
+  updateInstructionCloud();
+}
+
+instructionCloudSkip.addEventListener("click", completeFaceInstructions);
 
 brushToggle.addEventListener("click", () => {
   setDrawingEnabled(!drawingEnabled);

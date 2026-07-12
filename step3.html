@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body class="editor-page face-step-page">
   <a class="last-step-button" href="step2.html">Last Step</a>
@@ -29,8 +29,21 @@
     </section>
 
     <aside class="editor-side-panel face-side-panel editor-side-right" aria-label="Mouth gallery and brush">
+      <section class="instruction-cloud" aria-label="Face instructions">
+        <div class="instruction-cloud-shape" aria-hidden="true">
+          <span class="cloud-circle cloud-circle-1"></span>
+          <span class="cloud-circle cloud-circle-2"></span>
+          <span class="cloud-circle cloud-circle-3"></span>
+          <span class="cloud-circle cloud-circle-4"></span>
+          <span class="cloud-circle cloud-circle-5"></span>
+          <span class="cloud-circle cloud-circle-6"></span>
+        </div>
+        <p class="instruction-cloud-text" aria-live="polite"></p>
+        <button class="instruction-cloud-skip" type="button">skip</button>
+      </section>
       <button class="brush-toggle" type="button" aria-pressed="false" aria-label="Enable drawing">
         <img src="assets/brush_placeholder.svg" alt="">
+        <span class="brush-pulse" aria-hidden="true"></span>
       </button>
       <section class="face-gallery-section" aria-label="Mouth gallery">
         <h2 class="gallery-section-title">Mouth</h2>
@@ -42,7 +55,7 @@
     <p class="generate-status" aria-live="polite"></p>
   </main>
 
-  <script src="shared.js?v=15"></script>
-  <script src="step3.js?v=15"></script>
+  <script src="shared.js?v=19"></script>
+  <script src="step3.js?v=19"></script>
 </body>
 </html>

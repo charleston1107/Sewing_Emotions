@@ -2,12 +2,21 @@ const editorSurface = document.querySelector(".color-editor-surface");
 const leftColorGallery = document.querySelector(".editor-color-gallery-left");
 const rightColorGallery = document.querySelector(".editor-color-gallery-right");
 const finishButton = document.querySelector(".editor-finish");
+const instructionCloud = document.querySelector(".instruction-cloud");
+const instructionCloudText = document.querySelector(".instruction-cloud-text");
+const instructionCloudSkip = document.querySelector(".instruction-cloud-skip");
 const LEFT_COLORS = ["#B80B1F", "#E29544", "#EADB01", "#64955D", "#7AABD2", "#5D2D91"];
 const RIGHT_COLORS = ["#6B4A42", "#727580", "#B0A6B6", "#E0E0E0", "#EBE8DB", "#000000"];
+const COLOR_INSTRUCTIONS = [
+  "Select the shape by clicking on it. Click the desired color to give it a color.",
+  "If you're a beginner in sewing, using the same color for the whole plushie is a great place to start."
+];
 
 let composition = loadComposition();
 let selectedPartId = composition.parts[0]?.id || null;
 let activeColor = getSelectedPart()?.color || "#FFFFFF";
+let colorInstructionStep = 0;
+let colorInstructionsComplete = false;
 
 function getSelectedPart() {
   return composition.parts.find((part) => part.id === selectedPartId) || null;
@@ -88,6 +97,7 @@ function applyColor(color) {
   saveComposition(composition);
   renderColorEditor();
   updateColorGalleryState();
+  showFinalColorInstruction();
 }
 
 function updateColorGalleryState() {
@@ -102,5 +112,31 @@ finishButton.addEventListener("click", () => {
   saveComposition(composition);
 });
 
+function updateInstructionCloud() {
+  instructionCloud.classList.toggle("is-hidden", colorInstructionsComplete);
+
+  if (!colorInstructionsComplete) {
+    instructionCloudText.textContent = COLOR_INSTRUCTIONS[colorInstructionStep];
+  }
+}
+
+function showFinalColorInstruction() {
+  if (colorInstructionsComplete || colorInstructionStep === 1) {
+    return;
+  }
+
+  colorInstructionStep = 1;
+  updateInstructionCloud();
+  window.setTimeout(completeColorInstructions, 3000);
+}
+
+function completeColorInstructions() {
+  colorInstructionsComplete = true;
+  updateInstructionCloud();
+}
+
+instructionCloudSkip.addEventListener("click", completeColorInstructions);
+
 renderColorGalleries();
+updateInstructionCloud();
 renderColorEditor();

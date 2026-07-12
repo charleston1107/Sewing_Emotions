@@ -2,10 +2,20 @@ const editorSurface = document.querySelector(".editor-surface");
 const leftGallery = document.querySelector(".editor-gallery-left");
 const rightGallery = document.querySelector(".editor-gallery-right");
 const finishButton = document.querySelector(".editor-finish");
+const instructionCloud = document.querySelector(".instruction-cloud");
+const instructionCloudText = document.querySelector(".instruction-cloud-text");
+const instructionCloudSkip = document.querySelector(".instruction-cloud-skip");
+const INSTRUCTION_LINES = [
+  "Choose the shape that can best represent your current emotions.\nDrag and drop them onto the canvas.",
+  "You can organize your shapes approximately within the reference lines. You can also change size or rotate your shapes.",
+  "Enjoy designing your emotion plushie!"
+];
 
 let composition = { parts: [] };
 let selectedPartId = null;
 let activeAction = null;
+let instructionStep = 0;
+let instructionsComplete = false;
 
 function makePart(shapeIndex, clientX, clientY) {
   const rect = editorSurface.getBoundingClientRect();
@@ -97,8 +107,7 @@ function renderEditor() {
     editorSurface.appendChild(partElement);
   });
 
-  finishButton.classList.toggle("is-disabled", composition.parts.length === 0);
-  finishButton.setAttribute("aria-disabled", composition.parts.length === 0 ? "true" : "false");
+  updateFinishState();
 }
 
 function makeHandle(type, label) {
@@ -162,6 +171,46 @@ function clearSelection(event) {
 
 function saveEditor() {
   saveComposition(composition);
+}
+
+function updateInstructionCloud() {
+  instructionCloud.classList.toggle("is-hidden", instructionsComplete);
+
+  if (!instructionsComplete) {
+    instructionCloudText.textContent = INSTRUCTION_LINES[instructionStep];
+  }
+}
+
+function advanceAfterFirstDrop() {
+  if (instructionsComplete || instructionStep !== 0) {
+    return;
+  }
+
+  instructionStep = 1;
+  updateInstructionCloud();
+  updateFinishState();
+}
+
+function completeInstructions() {
+  instructionsComplete = true;
+  updateInstructionCloud();
+  updateFinishState();
+}
+
+function showFinalInstruction() {
+  if (instructionsComplete || instructionStep === 2) {
+    return;
+  }
+
+  instructionStep = 2;
+  updateInstructionCloud();
+  window.setTimeout(completeInstructions, 3000);
+}
+
+function updateFinishState() {
+  const canFinish = composition.parts.length > 0 && instructionsComplete;
+  finishButton.classList.toggle("is-disabled", !canFinish);
+  finishButton.setAttribute("aria-disabled", canFinish ? "false" : "true");
 }
 
 function pointToPercent(clientX, clientY) {
@@ -271,6 +320,7 @@ function updateAction(event) {
     const distance = Math.hypot(event.clientX - center.x, event.clientY - center.y);
     const nextSize = activeAction.startSize * (distance / activeAction.startDistance);
     part.size = clampValue(nextSize, 5, 70);
+    activeAction.changed = true;
     renderEditor();
     return;
   }
@@ -280,6 +330,7 @@ function updateAction(event) {
     const center = partCenterPixels(part);
     const angle = Math.atan2(event.clientY - center.y, event.clientX - center.x) * 180 / Math.PI;
     part.rotation = activeAction.startRotation + angle - activeAction.startAngle;
+    activeAction.changed = true;
     renderEditor();
   }
 }
@@ -305,7 +356,12 @@ function finishAction(event) {
       const part = makePart(action.shapeIndex, event.clientX, event.clientY);
       composition.parts.push(part);
       selectedPartId = part.id;
+      advanceAfterFirstDrop();
     }
+  }
+
+  if ((action.type === "resize" || action.type === "rotate") && action.changed) {
+    showFinalInstruction();
   }
 
   renderEditor();
@@ -318,12 +374,16 @@ function cancelAction() {
 }
 
 finishButton.addEventListener("click", (event) => {
-  if (composition.parts.length === 0) {
+  if (composition.parts.length === 0 || !instructionsComplete) {
     event.preventDefault();
     return;
   }
 
   saveEditor();
+});
+
+instructionCloudSkip.addEventListener("click", () => {
+  completeInstructions();
 });
 
 editorSurface.addEventListener("pointerdown", clearSelection);
@@ -334,5 +394,6 @@ document.addEventListener("mouseup", finishAction);
 document.addEventListener("pointercancel", cancelAction);
 
 renderGalleries();
+updateInstructionCloud();
 renderEditor();
 saveEditor();

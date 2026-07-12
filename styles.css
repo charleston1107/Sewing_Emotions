@@ -362,6 +362,124 @@ button {
   transform: translateY(var(--editor-lift));
 }
 
+.instruction-cloud {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(20vw, 260px);
+  min-height: 176px;
+  margin: 0 auto 12px;
+  padding: 24px 14px 34px;
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.instruction-cloud.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+.instruction-cloud-shape {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cloud-circle {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  filter: blur(2.5px);
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.72);
+  animation: cloudDrift 7.6s ease-in-out infinite alternate;
+}
+
+.cloud-circle-1 {
+  left: 6%;
+  top: 32%;
+  width: 52%;
+  aspect-ratio: 1;
+  animation-duration: 7.2s;
+}
+
+.cloud-circle-2 {
+  left: 28%;
+  top: 8%;
+  width: 45%;
+  aspect-ratio: 1;
+  animation-duration: 8.4s;
+  animation-delay: -1.8s;
+}
+
+.cloud-circle-3 {
+  right: 4%;
+  top: 26%;
+  width: 54%;
+  aspect-ratio: 1;
+  animation-duration: 6.8s;
+  animation-delay: -3s;
+}
+
+.cloud-circle-4 {
+  left: 19%;
+  bottom: 8%;
+  width: 48%;
+  aspect-ratio: 1;
+  animation-duration: 9s;
+  animation-delay: -2.4s;
+}
+
+.cloud-circle-5 {
+  right: 16%;
+  bottom: 9%;
+  width: 44%;
+  aspect-ratio: 1;
+  animation-duration: 7.8s;
+  animation-delay: -4.2s;
+}
+
+.cloud-circle-6 {
+  left: 2%;
+  top: 4%;
+  width: 35%;
+  aspect-ratio: 1;
+  animation-duration: 8.8s;
+  animation-delay: -5.4s;
+}
+
+.instruction-cloud-text {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(0.66rem, 0.92vw, 0.92rem);
+  font-weight: 600;
+  line-height: 1.34;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.instruction-cloud-skip {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: transparent;
+  cursor: pointer;
+  transform: translateX(-50%);
+}
+
 .editor-gallery,
 .editor-color-gallery {
   display: grid;
@@ -532,6 +650,7 @@ button {
 }
 
 .brush-toggle {
+  position: relative;
   display: grid;
   place-items: center;
   justify-self: center;
@@ -544,6 +663,26 @@ button {
   background: rgba(255, 255, 255, 0.34);
   box-shadow: 0 12px 22px rgba(96, 59, 39, 0.12);
   cursor: pointer;
+}
+
+.brush-pulse {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 14px);
+  z-index: -1;
+  display: block;
+  width: 54%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.62);
+}
+
+.brush-pulse.is-active {
+  animation: brushPulseHint 4s ease-in-out forwards;
 }
 
 .brush-toggle.is-active {
@@ -948,6 +1087,46 @@ button {
 
   100% {
     width: clamp(220px, 34vw, 320px);
+  }
+}
+
+@keyframes cloudDrift {
+  0% {
+    transform: translate3d(-3px, 2px, 0) scale(0.98);
+  }
+
+  35% {
+    transform: translate3d(4px, -3px, 0) scale(1.02);
+  }
+
+  70% {
+    transform: translate3d(-1px, -5px, 0) scale(1);
+  }
+
+  100% {
+    transform: translate3d(5px, 3px, 0) scale(1.03);
+  }
+}
+
+@keyframes brushPulseHint {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0.62);
+  }
+
+  50% {
+    opacity: 0.78;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+
+  82% {
+    opacity: 0.56;
+    transform: translate(-50%, -50%) scale(0.62);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.62);
   }
 }
 
