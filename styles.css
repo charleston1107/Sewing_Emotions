@@ -245,7 +245,7 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(28px, 5.2vh, 52px);
+  gap: 10px;
   width: 100%;
   height: 82vh;
 }
@@ -273,8 +273,8 @@ button {
   display: grid;
   place-items: center;
   width: 100%;
-  aspect-ratio: 1;
-  padding: 10px;
+  height: clamp(54px, 8.4vh, 74px);
+  padding: 8px 10px;
   border: 0;
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.3);
@@ -292,8 +292,8 @@ button {
 }
 
 .editor-color-swatch {
-  width: 58%;
-  aspect-ratio: 1;
+  width: min(46px, 62%);
+  height: min(46px, 70%);
   border-radius: 50%;
   background: var(--swatch-color);
   filter: blur(0.6px);
@@ -302,7 +302,7 @@ button {
 
 .editor-gallery-icon {
   width: 84%;
-  aspect-ratio: 1;
+  height: 100%;
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;
@@ -756,7 +756,7 @@ button {
 
   .editor-side-panel {
     height: auto;
-    gap: 24px;
+    gap: 8px;
     width: min(100%, 620px);
     justify-self: center;
   }
