@@ -134,6 +134,106 @@ button {
   line-height: 0.9;
 }
 
+.welcome-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.welcome-background-visual {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(75vw, 1100px);
+  height: 75vh;
+  object-fit: contain;
+  opacity: 0.86;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.welcome-line {
+  position: relative;
+  z-index: 2;
+  width: min(82vw, 760px);
+  margin: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 500;
+  line-height: 1.34;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 650ms ease, transform 650ms ease;
+}
+
+.welcome-line.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.welcome-skip {
+  position: fixed;
+  right: 24px;
+  bottom: 22px;
+  z-index: 4;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-transform: lowercase;
+}
+
+.welcome-whiteout {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  background: #FFFFFF;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1500ms ease;
+}
+
+.welcome-stage.is-whiting-out .welcome-whiteout {
+  opacity: 1;
+}
+
+.breathing-circle {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: min(44vw, 320px);
+  aspect-ratio: 1;
+  padding: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 0 42px 24px rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  filter: blur(0.2px);
+  transform: scale(0.62);
+  transition: opacity 900ms ease;
+}
+
+.breathing-circle span {
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.breathing-circle.is-active {
+  opacity: 1;
+  animation: breatheCircle 6s ease-in-out 3;
+}
+
 .carousel-stage {
   display: grid;
   grid-template-columns: minmax(56px, 1fr) minmax(0, 860px) minmax(56px, 1fr);
@@ -825,6 +925,20 @@ button {
 
   100% {
     opacity: 0.5;
+  }
+}
+
+@keyframes breatheCircle {
+  0% {
+    transform: scale(0.62);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(0.62);
   }
 }
 
