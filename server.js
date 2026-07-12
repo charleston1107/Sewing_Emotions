@@ -161,11 +161,11 @@ function buildImagePrompt(body) {
   }).join("\n");
 
   return [
-    "Create a playful hand-drawn emotion character inspired by the submitted drawing-board reference image.",
-    "Style: childlike crayon illustration, handmade texture, colorful, soft, expressive, cute, like a sticker or children's craft character.",
+    "Create a playful hand-sewn plushie with the same overall shape and color as the submitted drawing-board reference image.",
+    "If the reference image has the same color in all parts except for the facial expressions, make the plushie be made of a whole piece of fabric of that color, and use embroidery or stitching to create the facial expressions. However, if the reference image has shapes with colors different from the main body, these shapes will be made of a different fabric, sewn onto the main body; use embroidery or stitching to create the facial expressions.",
+    "Style: realistic image, childish and cute plushie style, handmade sewn plushie texture, colorful, soft, expressive, cute, like a sticker or children's craft character.",
     "Respect the rough silhouette, composition, shape placement, and colors from the reference, but reinterpret it as a polished illustration.",
     "Keep the background simple and clean.",
-    "",
     "User shape composition:",
     shapeSummary || "No separate shape metadata was provided.",
     "",
