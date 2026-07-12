@@ -233,15 +233,25 @@ button {
 .editor-stage {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(104px, 13vw) minmax(420px, 1fr) minmax(104px, 13vw);
+  grid-template-columns: minmax(132px, 15vw) minmax(440px, 1fr) minmax(132px, 15vw);
   align-items: center;
-  gap: clamp(14px, 2vw, 28px);
+  gap: clamp(16px, 2.2vw, 34px);
   width: 100%;
   min-height: 100vh;
-  padding: 58px clamp(16px, 3vw, 42px) 92px;
+  padding: 52px clamp(14px, 2.6vw, 36px) 82px;
 }
 
-.editor-gallery {
+.editor-side-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(28px, 5.2vh, 52px);
+  width: 100%;
+  height: 82vh;
+}
+
+.editor-gallery,
+.editor-color-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(46px, 1fr));
   gap: 10px;
@@ -250,7 +260,16 @@ button {
   width: 100%;
 }
 
-.editor-gallery-item {
+.editor-gallery {
+  flex: 0 0 auto;
+}
+
+.editor-color-gallery {
+  flex: 0 0 auto;
+}
+
+.editor-gallery-item,
+.editor-color-item {
   display: grid;
   place-items: center;
   width: 100%;
@@ -261,6 +280,24 @@ button {
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 18px rgba(96, 59, 39, 0.08);
   cursor: grab;
+}
+
+.editor-color-item {
+  cursor: pointer;
+}
+
+.editor-color-item.is-active {
+  background: rgba(255, 255, 255, 0.46);
+  box-shadow: 0 12px 22px rgba(96, 59, 39, 0.12), inset 0 0 0 2px rgba(96, 59, 39, 0.18);
+}
+
+.editor-color-swatch {
+  width: 58%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--swatch-color);
+  filter: blur(0.6px);
+  box-shadow: 0 0 12px var(--swatch-color), 0 5px 12px rgba(96, 59, 39, 0.12);
 }
 
 .editor-gallery-icon {
@@ -277,8 +314,8 @@ button {
 .editor-frame {
   position: relative;
   justify-self: center;
-  width: min(66vw, 880px);
-  height: 76vh;
+  width: min(68vw, 960px);
+  height: 82vh;
   border-radius: 7px;
   background:
     linear-gradient(rgba(96, 59, 39, 0.05) 1px, transparent 1px),
@@ -292,26 +329,6 @@ button {
 .editor-surface {
   position: absolute;
   inset: 0;
-}
-
-.editor-color-picker {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 8;
-  width: 62px;
-  height: 42px;
-  padding: 0;
-  border: 0;
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 10px 18px rgba(96, 59, 39, 0.1);
-  cursor: pointer;
-}
-
-.editor-color-picker:disabled {
-  opacity: 0.45;
-  cursor: default;
 }
 
 .editor-part {
@@ -384,7 +401,7 @@ button {
   left: 50%;
   bottom: 26px;
   min-width: 160px;
-  padding: 10px 34px 14px;
+  padding: 8px 34px 11px;
   border: 0;
   border-radius: 999px;
   color: var(--brown);
@@ -586,7 +603,7 @@ button {
   left: 50%;
   bottom: 28px;
   min-width: 150px;
-  padding: 10px 34px 14px;
+  padding: 8px 34px 11px;
   border-radius: 999px;
   color: var(--brown);
   text-align: center;
@@ -737,20 +754,26 @@ button {
     padding: 62px 16px 100px;
   }
 
-  .editor-gallery {
-    grid-template-columns: repeat(8, minmax(38px, 1fr));
-    gap: 8px;
+  .editor-side-panel {
+    height: auto;
+    gap: 24px;
     width: min(100%, 620px);
     justify-self: center;
   }
 
-  .editor-frame {
-    width: min(100%, 620px);
-    height: 58vh;
+  .editor-gallery,
+  .editor-color-gallery {
+    grid-template-columns: repeat(8, minmax(38px, 1fr));
+    gap: 8px;
+    width: 100%;
   }
 
-  .editor-color-picker {
-    width: 54px;
-    height: 38px;
+  .editor-color-gallery {
+    grid-template-columns: repeat(6, minmax(38px, 1fr));
+  }
+
+  .editor-frame {
+    width: min(100%, 620px);
+    height: 64vh;
   }
 }
