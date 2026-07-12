@@ -314,6 +314,8 @@ button {
 .editor-frame {
   position: relative;
   justify-self: center;
+  transform: translateY(-20px);
+
   width: min(68vw, 960px);
   height: 82vh;
   border-radius: 7px;
