@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="handle" x1="22" y1="100" x2="98" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#603B27"/>
+      <stop offset="1" stop-color="#E29544"/>
+    </linearGradient>
+    <linearGradient id="bristles" x1="20" y1="98" x2="52" y2="66" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCC442"/>
+      <stop offset="1" stop-color="#FFB1B8"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#handle)" d="M46 76 84 24c4-6 12-7 17-2s4 13-2 17L47 77z"/>
+  <path fill="#F9E2AC" d="m42 72 7-7 9 9-7 7z"/>
+  <path fill="url(#bristles)" d="M21 100c10 1 20-4 29-17l-13-13C25 79 20 89 21 100z"/>
+  <path fill="#603B27" opacity=".18" d="M27 95c7-1 12-5 18-13l-6-6c-8 6-12 11-12 19z"/>
+</svg>

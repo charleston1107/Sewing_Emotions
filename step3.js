@@ -3,14 +3,104 @@ const canvas = document.querySelector(".drawing-canvas");
 const context = canvas.getContext("2d");
 const generateButton = document.querySelector(".generate-button");
 const generateStatus = document.querySelector(".generate-status");
-const generatedResult = document.querySelector(".generated-result");
+const brushToggle = document.querySelector(".brush-toggle");
+const browGallery = document.querySelector(".face-gallery-brows");
+const eyeGallery = document.querySelector(".face-gallery-eyes");
+const mouthGallery = document.querySelector(".face-gallery-mouths");
+const FACE_ASSETS = {
+  brow: ["assets/face/brow_0.png", "assets/face/brow_1.png", "assets/face/brow_2.png", "assets/face/brow_3.png"],
+  eye: ["assets/face/eye_0.png", "assets/face/eye_1.png", "assets/face/eye_2.png", "assets/face/eye_3.png"],
+  mouth: ["assets/face/mouth_0.png", "assets/face/mouth_1.png", "assets/face/mouth_2.png", "assets/face/mouth_3.png"]
+};
+
 const composition = loadComposition();
-const shapeImageCache = new Map();
+composition.faceParts = Array.isArray(composition.faceParts) ? composition.faceParts : [];
 
+const imageCache = new Map();
 let drawing = false;
+let drawingEnabled = false;
 let lastPoint = null;
+let activeDrag = null;
 
-renderComposition(drawingSurface, composition);
+renderFaceGalleries();
+renderBoard();
+resizeCanvas();
+
+function renderFaceGalleries() {
+  renderFaceGallery(browGallery, "brow", FACE_ASSETS.brow);
+  renderFaceGallery(eyeGallery, "eye", FACE_ASSETS.eye);
+  renderFaceGallery(mouthGallery, "mouth", FACE_ASSETS.mouth);
+}
+
+function renderFaceGallery(gallery, type, assets) {
+  gallery.innerHTML = "";
+
+  assets.forEach((src, index) => {
+    const button = document.createElement("button");
+    button.className = "face-gallery-item";
+    button.type = "button";
+    button.dataset.faceType = type;
+    button.dataset.faceIndex = String(index);
+    button.setAttribute("aria-label", `Drag ${type} ${index + 1}`);
+
+    const image = document.createElement("img");
+    image.src = src;
+    image.alt = "";
+    button.appendChild(image);
+
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      startFaceDrag(event, type, index, button);
+    });
+
+    button.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      startFaceDrag(event, type, index, button);
+    });
+
+    gallery.appendChild(button);
+  });
+}
+
+function renderBoard() {
+  renderComposition(drawingSurface, composition);
+
+  composition.faceParts.forEach((part) => {
+    const image = document.createElement("img");
+    image.className = "placed-face-part";
+    image.src = faceSrc(part);
+    image.alt = "";
+    image.dataset.facePartId = part.id;
+    image.style.left = `${part.x}%`;
+    image.style.top = `${part.y}%`;
+    image.style.width = `${part.size}%`;
+    image.style.transform = `translate(-50%, -50%) rotate(${part.rotation || 0}deg)`;
+
+    image.addEventListener("pointerdown", (event) => {
+      if (drawingEnabled) {
+        return;
+      }
+
+      event.preventDefault();
+      startPlacedFaceMove(event, part.id, image);
+    });
+
+    image.addEventListener("mousedown", (event) => {
+      if (drawingEnabled) {
+        return;
+      }
+
+      event.preventDefault();
+      startPlacedFaceMove(event, part.id, image);
+    });
+
+    drawingSurface.appendChild(image);
+  });
+}
+
+function faceSrc(part) {
+  return FACE_ASSETS[part.type]?.[part.index] || "";
+}
 
 function resizeCanvas() {
   const rect = canvas.getBoundingClientRect();
@@ -32,7 +122,129 @@ function pointFromEvent(event) {
   };
 }
 
+function surfacePointToPercent(clientX, clientY) {
+  const rect = drawingSurface.getBoundingClientRect();
+  return {
+    x: clampValue(((clientX - rect.left) / rect.width) * 100, 4, 96),
+    y: clampValue(((clientY - rect.top) / rect.height) * 100, 4, 96)
+  };
+}
+
+function findFacePart(partId) {
+  return composition.faceParts.find((part) => part.id === partId) || null;
+}
+
+function facePartCenterPixels(part) {
+  const rect = drawingSurface.getBoundingClientRect();
+  return {
+    x: rect.left + (part.x / 100) * rect.width,
+    y: rect.top + (part.y / 100) * rect.height
+  };
+}
+
+function startFaceDrag(event, type, index, sourceElement) {
+  activeDrag = {
+    type: "gallery-face",
+    pointerId: event.pointerId,
+    faceType: type,
+    faceIndex: index,
+    sourceElement
+  };
+  sourceElement.classList.add("is-pointer-dragging");
+
+  if (event.pointerId !== undefined && sourceElement.setPointerCapture) {
+    sourceElement.setPointerCapture(event.pointerId);
+  }
+}
+
+function startPlacedFaceMove(event, partId, sourceElement) {
+  const part = findFacePart(partId);
+  const center = facePartCenterPixels(part);
+  activeDrag = {
+    type: "move-face",
+    pointerId: event.pointerId,
+    partId,
+    sourceElement,
+    offsetX: event.clientX - center.x,
+    offsetY: event.clientY - center.y
+  };
+  sourceElement.classList.add("is-pointer-dragging");
+
+  if (event.pointerId !== undefined && sourceElement.setPointerCapture) {
+    sourceElement.setPointerCapture(event.pointerId);
+  }
+}
+
+function updateDrag(event) {
+  if (!activeDrag || (activeDrag.pointerId !== undefined && event.pointerId !== undefined && activeDrag.pointerId !== event.pointerId)) {
+    return;
+  }
+
+  if (activeDrag.type === "move-face") {
+    const part = findFacePart(activeDrag.partId);
+    const point = surfacePointToPercent(event.clientX - activeDrag.offsetX, event.clientY - activeDrag.offsetY);
+    part.x = point.x;
+    part.y = point.y;
+    renderBoard();
+  }
+}
+
+function finishDrag(event) {
+  if (!activeDrag || (activeDrag.pointerId !== undefined && event.pointerId !== undefined && activeDrag.pointerId !== event.pointerId)) {
+    return;
+  }
+
+  const action = activeDrag;
+  activeDrag = null;
+
+  action.sourceElement?.classList.remove("is-pointer-dragging");
+  if (event.pointerId !== undefined && action.sourceElement?.releasePointerCapture) {
+    action.sourceElement.releasePointerCapture(event.pointerId);
+  }
+
+  if (action.type === "gallery-face" && isInsideSurface(event.clientX, event.clientY)) {
+    const point = surfacePointToPercent(event.clientX, event.clientY);
+    composition.faceParts.push({
+      id: `face-${Date.now()}-${Math.round(Math.random() * 10000)}`,
+      type: action.faceType,
+      index: action.faceIndex,
+      x: point.x,
+      y: point.y,
+      size: action.faceType === "mouth" ? 16 : 13,
+      rotation: 0
+    });
+    renderBoard();
+  }
+
+  saveComposition(composition);
+}
+
+function cancelDrag() {
+  activeDrag?.sourceElement?.classList.remove("is-pointer-dragging");
+  activeDrag = null;
+}
+
+function isInsideSurface(clientX, clientY) {
+  const rect = drawingSurface.getBoundingClientRect();
+  return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+}
+
+function setDrawingEnabled(enabled) {
+  drawingEnabled = enabled;
+  brushToggle.classList.toggle("is-active", enabled);
+  brushToggle.setAttribute("aria-pressed", enabled ? "true" : "false");
+  canvas.classList.toggle("is-drawing-enabled", enabled);
+}
+
+brushToggle.addEventListener("click", () => {
+  setDrawingEnabled(!drawingEnabled);
+});
+
 canvas.addEventListener("pointerdown", (event) => {
+  if (!drawingEnabled) {
+    return;
+  }
+
   drawing = true;
   lastPoint = pointFromEvent(event);
   canvas.setPointerCapture(event.pointerId);
@@ -54,7 +266,9 @@ canvas.addEventListener("pointermove", (event) => {
 canvas.addEventListener("pointerup", (event) => {
   drawing = false;
   lastPoint = null;
-  canvas.releasePointerCapture(event.pointerId);
+  if (canvas.hasPointerCapture(event.pointerId)) {
+    canvas.releasePointerCapture(event.pointerId);
+  }
 });
 
 canvas.addEventListener("pointercancel", () => {
@@ -63,15 +277,19 @@ canvas.addEventListener("pointercancel", () => {
 });
 
 window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+document.addEventListener("pointermove", updateDrag);
+document.addEventListener("mousemove", updateDrag);
+document.addEventListener("pointerup", finishDrag);
+document.addEventListener("mouseup", finishDrag);
+document.addEventListener("pointercancel", cancelDrag);
 
 generateButton.addEventListener("click", async () => {
   generateButton.disabled = true;
   generateButton.textContent = "Generating...";
   generateStatus.textContent = "Preparing your drawing board...";
-  generatedResult.innerHTML = "";
 
   try {
+    saveComposition(composition);
     const boardImage = await exportBoardImage();
     generateStatus.textContent = "Asking Gemini to reinterpret your shape...";
 
@@ -91,10 +309,10 @@ generateButton.addEventListener("click", async () => {
       throw new Error(data.error || "Image generation failed.");
     }
 
-    showGeneratedImage(data.imageUrl, data.warning);
+    localStorage.setItem("sewing-emotions-generated-image", data.imageUrl);
+    window.location.href = "step4.html";
   } catch (error) {
     generateStatus.textContent = error.message;
-  } finally {
     generateButton.disabled = false;
     generateButton.textContent = "Generate";
   }
@@ -113,15 +331,19 @@ async function exportBoardImage() {
   outputContext.fillRect(0, 0, width, height);
 
   for (const part of composition.parts) {
-    await drawPart(outputContext, part, width, height);
+    await drawShapePart(outputContext, part, width, height);
+  }
+
+  for (const part of composition.faceParts) {
+    await drawFacePart(outputContext, part, width, height);
   }
 
   outputContext.drawImage(canvas, 0, 0, width, height);
   return output.toDataURL("image/png");
 }
 
-async function drawPart(outputContext, part, boardWidth, boardHeight) {
-  const image = await loadShapeImage(SEWING_SHAPES[wrapShapeIndex(part.shapeIndex)]);
+async function drawShapePart(outputContext, part, boardWidth, boardHeight) {
+  const image = await loadImage(SEWING_SHAPES[wrapShapeIndex(part.shapeIndex)]);
   const size = (part.size / 100) * boardWidth;
   const x = (part.x / 100) * boardWidth;
   const y = (part.y / 100) * boardHeight;
@@ -142,9 +364,23 @@ async function drawPart(outputContext, part, boardWidth, boardHeight) {
   outputContext.restore();
 }
 
-function loadShapeImage(src) {
-  if (shapeImageCache.has(src)) {
-    return shapeImageCache.get(src);
+async function drawFacePart(outputContext, part, boardWidth, boardHeight) {
+  const image = await loadImage(faceSrc(part));
+  const size = (part.size / 100) * boardWidth;
+  const x = (part.x / 100) * boardWidth;
+  const y = (part.y / 100) * boardHeight;
+  const ratio = image.naturalHeight / image.naturalWidth || 1;
+
+  outputContext.save();
+  outputContext.translate(x, y);
+  outputContext.rotate((part.rotation || 0) * Math.PI / 180);
+  outputContext.drawImage(image, -size / 2, -(size * ratio) / 2, size, size * ratio);
+  outputContext.restore();
+}
+
+function loadImage(src) {
+  if (imageCache.has(src)) {
+    return imageCache.get(src);
   }
 
   const promise = new Promise((resolve, reject) => {
@@ -154,17 +390,6 @@ function loadShapeImage(src) {
     image.src = src;
   });
 
-  shapeImageCache.set(src, promise);
+  imageCache.set(src, promise);
   return promise;
-}
-
-function showGeneratedImage(imageUrl, warning) {
-  const image = document.createElement("img");
-  image.className = "generated-image";
-  image.src = imageUrl;
-  image.alt = "Generated emotion character";
-
-  generatedResult.innerHTML = "";
-  generatedResult.appendChild(image);
-  generateStatus.textContent = warning || "Generated image ready.";
 }

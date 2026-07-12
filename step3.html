@@ -3,25 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Step 3 | Sewing Emotions</title>
+  <title>Add a Face | Sewing Emotions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
 </head>
-<body class="drawing-page">
+<body class="editor-page face-step-page">
   <a class="last-step-button" href="step2.html">Last Step</a>
-  <main class="drawing-stage" aria-label="Draw on emotion shape">
-    <section class="composition-frame drawing-frame" aria-label="Drawing board">
-      <div class="composition-surface drawing-surface" data-drop-zone="composition"></div>
+  <main class="editor-stage" aria-label="Add facial features and drawing">
+    <aside class="editor-side-panel face-side-panel editor-side-left" aria-label="Eyebrow and eye gallery">
+      <section class="face-gallery-section" aria-label="Eyebrow gallery">
+        <h2 class="gallery-section-title">Eyebrows</h2>
+        <div class="face-gallery face-gallery-brows"></div>
+      </section>
+      <section class="face-gallery-section" aria-label="Eye gallery">
+        <h2 class="gallery-section-title">Eyes</h2>
+        <div class="face-gallery face-gallery-eyes"></div>
+      </section>
+    </aside>
+
+    <section class="editor-frame drawing-frame" aria-label="Drawing board">
+      <div class="editor-surface drawing-surface" data-drop-zone="composition"></div>
       <canvas class="drawing-canvas" aria-label="Drawing canvas"></canvas>
     </section>
+
+    <aside class="editor-side-panel face-side-panel editor-side-right" aria-label="Mouth gallery and brush">
+      <button class="brush-toggle" type="button" aria-pressed="false" aria-label="Enable drawing">
+        <img src="assets/brush_placeholder.svg" alt="">
+      </button>
+      <section class="face-gallery-section" aria-label="Mouth gallery">
+        <h2 class="gallery-section-title">Mouth</h2>
+        <div class="face-gallery face-gallery-mouths"></div>
+      </section>
+    </aside>
+
     <button class="generate-button" type="button">Generate</button>
     <p class="generate-status" aria-live="polite"></p>
-    <section class="generated-result" aria-label="Generated image result"></section>
   </main>
 
-  <script src="shared.js?v=14"></script>
-  <script src="step3.js?v=14"></script>
+  <script src="shared.js?v=15"></script>
+  <script src="step3.js?v=15"></script>
 </body>
 </html>

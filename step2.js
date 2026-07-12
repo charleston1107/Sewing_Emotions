@@ -30,6 +30,10 @@ function renderColorGallery(gallery, colors) {
     button.style.setProperty("--swatch-color", color);
     button.setAttribute("aria-label", `Use color ${color}`);
 
+    const swatch = document.createElement("span");
+    swatch.className = "editor-color-swatch";
+    button.appendChild(swatch);
+
     button.addEventListener("click", () => {
       applyColor(color);
     });

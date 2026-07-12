@@ -286,12 +286,10 @@ button {
 }
 
 .editor-color-item {
-  background: var(--swatch-color);
   cursor: pointer;
 }
 
 .editor-color-item.is-active {
-  background: var(--swatch-color);
   box-shadow: 0 12px 22px rgba(96, 59, 39, 0.12), inset 0 0 0 2px rgba(96, 59, 39, 0.72);
 }
 
@@ -362,6 +360,102 @@ button {
   border: 0;
   background: transparent;
   cursor: pointer;
+}
+
+.color-step-page .editor-color-item {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.color-step-page .editor-color-item.is-active {
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.face-step-page .editor-side-panel {
+  justify-content: flex-end;
+}
+
+.face-gallery-section {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.gallery-section-title {
+  width: 100%;
+  margin: 0;
+  padding: 6px 10px 8px;
+  border-radius: 999px;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(0.72rem, 1.15vw, 1rem);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  background: linear-gradient(90deg, #FCC442, #F9E2AC);
+  box-shadow: 0 8px 14px rgba(96, 59, 39, 0.1);
+}
+
+.face-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(46px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.face-gallery-item {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 8px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 18px rgba(96, 59, 39, 0.08);
+  cursor: grab;
+}
+
+.face-gallery-item img {
+  max-width: 86%;
+  max-height: 76%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.brush-toggle {
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: min(92px, 64%);
+  aspect-ratio: 1;
+  margin: 0 auto 8px;
+  padding: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow: 0 12px 22px rgba(96, 59, 39, 0.12);
+  cursor: pointer;
+}
+
+.brush-toggle.is-active {
+  background: linear-gradient(135deg, #FCC442, #FFB1B8);
+  box-shadow: 0 16px 26px rgba(96, 59, 39, 0.17), inset 0 0 0 2px rgba(96, 59, 39, 0.28);
+}
+
+.brush-toggle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.placed-face-part {
+  position: absolute;
+  z-index: 3;
+  object-fit: contain;
+  cursor: grab;
+  touch-action: none;
+  filter: drop-shadow(0 5px 8px rgba(96, 59, 39, 0.12));
 }
 
 .editor-part-shape {
@@ -648,22 +742,42 @@ button {
   cursor: default;
 }
 
-.drawing-stage {
-  place-items: center;
-  padding: clamp(18px, 5vw, 52px);
-}
-
-.drawing-frame {
-  width: min(760px, 82vw);
-}
-
 .drawing-canvas {
   position: absolute;
   inset: 0;
+  z-index: 4;
   width: 100%;
   height: 100%;
+  pointer-events: none;
   cursor: crosshair;
   touch-action: none;
+}
+
+.drawing-canvas.is-drawing-enabled {
+  pointer-events: auto;
+}
+
+.result-stage {
+  grid-template-columns: 20vw 60vw 20vw;
+}
+
+.result-frame {
+  display: grid;
+  place-items: center;
+}
+
+.step4-generated-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.step4-empty-message {
+  margin: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .library-stage {
