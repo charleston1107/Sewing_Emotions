@@ -1,208 +1,102 @@
-const compositionSurface = document.querySelector(".composition-surface");
-const colorPicker = document.querySelector(".color-picker");
-const colorInstruction = document.querySelector(".color-instruction");
-const partsInstruction = document.querySelector(".parts-instruction");
-const partsGallery = document.querySelector(".parts-gallery");
-const finishButton = document.querySelector(".finish-button");
+const editorSurface = document.querySelector(".color-editor-surface");
+const leftColorGallery = document.querySelector(".editor-color-gallery-left");
+const rightColorGallery = document.querySelector(".editor-color-gallery-right");
+const finishButton = document.querySelector(".editor-finish");
+const LEFT_COLORS = ["#B80B1F", "#E29544", "#EADB01", "#64955D", "#7AABD2", "#5D2D91"];
+const RIGHT_COLORS = ["#6B4A42", "#727580", "#B0A6B6", "#E0E0E0", "#EBE8DB", "#000000"];
 
 let composition = loadComposition();
-let activePointerDrag = null;
+let selectedPartId = composition.parts[0]?.id || null;
+let activeColor = getSelectedPart()?.color || "#FFFFFF";
 
-function refreshComposition() {
-  const body = renderComposition(compositionSurface, composition, { returnBody: true });
-  body.classList.add("body-drop-target");
-  attachPlacedPartHandlers();
+function getSelectedPart() {
+  return composition.parts.find((part) => part.id === selectedPartId) || null;
 }
 
-function showPartsInstruction() {
-  colorInstruction.classList.add("is-hidden");
-  partsInstruction.classList.remove("is-hidden");
+function renderColorGalleries() {
+  renderColorGallery(leftColorGallery, LEFT_COLORS);
+  renderColorGallery(rightColorGallery, RIGHT_COLORS);
+  updateColorGalleryState();
 }
 
-function enableFinish() {
-  finishButton.classList.remove("is-disabled");
-  finishButton.setAttribute("aria-disabled", "false");
-}
+function renderColorGallery(gallery, colors) {
+  gallery.innerHTML = "";
 
-function isInsideSurface(clientX, clientY) {
-  const rect = compositionSurface.getBoundingClientRect();
-  return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
-}
+  colors.forEach((color) => {
+    const button = document.createElement("button");
+    button.className = "editor-color-item";
+    button.type = "button";
+    button.dataset.color = color;
+    button.style.setProperty("--swatch-color", color);
+    button.setAttribute("aria-label", `Use color ${color}`);
 
-function addPartAt(shapeIndex, clientX, clientY) {
-  const rect = compositionSurface.getBoundingClientRect();
-  const x = clampValue(((clientX - rect.left) / rect.width) * 100, 8, 92);
-  const y = clampValue(((clientY - rect.top) / rect.height) * 100, 8, 92);
-  const size = 16;
-  const rotation = Math.round((Math.random() * 34) - 17);
-
-  composition.parts.push({ shapeIndex: wrapShapeIndex(shapeIndex), x, y, size, rotation, color: "#FFFFFF" });
-  saveComposition(composition);
-  refreshComposition();
-  showPartsInstruction();
-  enableFinish();
-}
-
-function movePartTo(partIndex, clientX, clientY) {
-  const rect = compositionSurface.getBoundingClientRect();
-  composition.parts[partIndex].x = clampValue(((clientX - rect.left) / rect.width) * 100, 8, 92);
-  composition.parts[partIndex].y = clampValue(((clientY - rect.top) / rect.height) * 100, 8, 92);
-  saveComposition(composition);
-  refreshComposition();
-}
-
-function applyBodyColor(color) {
-  composition.bodyColor = color;
-  saveComposition(composition);
-  refreshComposition();
-  showPartsInstruction();
-}
-
-function startPointerDrag(event, payload, sourceElement) {
-  activePointerDrag = {
-    payload,
-    pointerId: event.pointerId,
-    sourceElement,
-    startX: event.clientX,
-    startY: event.clientY,
-    moved: false
-  };
-  sourceElement.classList.add("is-pointer-dragging");
-  if (event.pointerId !== undefined && sourceElement.setPointerCapture) {
-    sourceElement.setPointerCapture(event.pointerId);
-  }
-}
-
-function finishPointerDrag(event) {
-  if (!activePointerDrag || (activePointerDrag.pointerId !== undefined && event.pointerId !== undefined && activePointerDrag.pointerId !== event.pointerId)) {
-    return;
-  }
-
-  const sourceElement = activePointerDrag.sourceElement;
-  sourceElement.classList.remove("is-pointer-dragging");
-  if (event.pointerId !== undefined && sourceElement.releasePointerCapture) {
-    sourceElement.releasePointerCapture(event.pointerId);
-  }
-
-  const payload = activePointerDrag.payload;
-  activePointerDrag = null;
-
-  if (!isInsideSurface(event.clientX, event.clientY)) {
-    return;
-  }
-
-  if (payload.type === "color") {
-    applyBodyColor(payload.color());
-    return;
-  }
-
-  if (payload.type === "shape") {
-    addPartAt(payload.shapeIndex, event.clientX, event.clientY);
-    return;
-  }
-
-  if (payload.type === "move-part") {
-    movePartTo(payload.partIndex, event.clientX, event.clientY);
-  }
-}
-
-function attachPlacedPartHandlers() {
-  compositionSurface.querySelectorAll(".placed-part").forEach((part) => {
-    const partIndex = Number(part.dataset.partIndex);
-    part.addEventListener("pointerdown", (event) => {
-      event.preventDefault();
-      startPointerDrag(event, { type: "move-part", partIndex }, part);
+    button.addEventListener("click", () => {
+      applyColor(color);
     });
-    part.addEventListener("mousedown", (event) => {
-      event.preventDefault();
-      startPointerDrag(event, { type: "move-part", partIndex }, part);
-    });
+
+    gallery.appendChild(button);
   });
 }
 
-function renderGallery() {
-  partsGallery.innerHTML = "";
-  SEWING_SHAPES.forEach((path, index) => {
-    const item = document.createElement("button");
-    item.className = "gallery-shape";
-    item.type = "button";
-    item.draggable = false;
-    item.setAttribute("aria-label", `Drag shape ${index + 1}`);
-    item.dataset.shapeIndex = String(index);
+function renderColorEditor() {
+  editorSurface.innerHTML = "";
 
-    const icon = createMaskedShape(path, "#FFFFFF", "gallery-shape-icon");
-    item.appendChild(icon);
+  composition.parts.forEach((part) => {
+    const path = SEWING_SHAPES[wrapShapeIndex(part.shapeIndex)];
+    const partElement = document.createElement("button");
+    const shapeElement = createMaskedShape(path, part.color || "#FFFFFF", "editor-part-shape");
 
-    item.addEventListener("pointerdown", (event) => {
-      event.preventDefault();
-      startPointerDrag(event, { type: "shape", shapeIndex: index }, item);
+    partElement.className = "editor-part color-editor-part";
+    partElement.type = "button";
+    partElement.dataset.partId = part.id;
+    partElement.style.left = `${part.x}%`;
+    partElement.style.top = `${part.y}%`;
+    partElement.style.width = `${part.size}%`;
+    partElement.style.transform = `translate(-50%, -50%) rotate(${part.rotation}deg)`;
+    partElement.setAttribute("aria-label", "Select shape to color");
+    partElement.appendChild(shapeElement);
+
+    if (part.id === selectedPartId) {
+      partElement.classList.add("is-selected");
+    }
+
+    partElement.addEventListener("click", () => {
+      selectedPartId = part.id;
+      activeColor = part.color || "#FFFFFF";
+      renderColorEditor();
+      updateColorGalleryState();
     });
 
-    item.addEventListener("mousedown", (event) => {
-      event.preventDefault();
-      startPointerDrag(event, { type: "shape", shapeIndex: index }, item);
-    });
-
-    item.addEventListener("pointermove", (event) => {
-      if (activePointerDrag?.pointerId === event.pointerId) {
-        activePointerDrag.moved = Math.abs(event.clientX - activePointerDrag.startX) > 3 || Math.abs(event.clientY - activePointerDrag.startY) > 3;
-      }
-    });
-
-    partsGallery.appendChild(item);
+    editorSurface.appendChild(partElement);
   });
 }
 
-colorPicker.addEventListener("input", () => {
-  applyBodyColor(colorPicker.value);
-});
+function applyColor(color) {
+  activeColor = color;
+  const selected = getSelectedPart();
 
-document.addEventListener("mousemove", (event) => {
-  if (!activePointerDrag || activePointerDrag.pointerId !== undefined) {
+  if (!selected) {
+    updateColorGalleryState();
     return;
   }
 
-  activePointerDrag.moved = Math.abs(event.clientX - activePointerDrag.startX) > 3 || Math.abs(event.clientY - activePointerDrag.startY) > 3;
-});
+  selected.color = color;
+  saveComposition(composition);
+  renderColorEditor();
+  updateColorGalleryState();
+}
 
-document.addEventListener("pointerup", finishPointerDrag);
-document.addEventListener("mouseup", finishPointerDrag);
-document.addEventListener("pointercancel", () => {
-  activePointerDrag?.sourceElement.classList.remove("is-pointer-dragging");
-  activePointerDrag = null;
-});
+function updateColorGalleryState() {
+  document.querySelectorAll(".editor-color-item").forEach((button) => {
+    const isActive = button.dataset.color?.toLowerCase() === activeColor.toLowerCase();
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+}
 
-compositionSurface.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  event.dataTransfer.dropEffect = "copy";
-});
-
-compositionSurface.addEventListener("drop", (event) => {
-  event.preventDefault();
-  const data = event.dataTransfer.getData("text/plain");
-
-  const shapeIndex = data.startsWith("shape:") ? Number(data.replace("shape:", "")) : NaN;
-  if (Number.isNaN(shapeIndex)) {
-    return;
-  }
-
-  addPartAt(shapeIndex, event.clientX, event.clientY);
-});
-
-finishButton.addEventListener("click", (event) => {
-  if (finishButton.classList.contains("is-disabled")) {
-    event.preventDefault();
-    return;
-  }
-
+finishButton.addEventListener("click", () => {
   saveComposition(composition);
 });
 
-colorPicker.value = composition.bodyColor;
-renderGallery();
-refreshComposition();
-
-if (composition.parts.length > 0) {
-  showPartsInstruction();
-  enableFinish();
-}
+renderColorGalleries();
+renderColorEditor();

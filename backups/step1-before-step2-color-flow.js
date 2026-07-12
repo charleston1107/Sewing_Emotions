@@ -1,11 +1,16 @@
 const editorSurface = document.querySelector(".editor-surface");
 const leftGallery = document.querySelector(".editor-gallery-left");
 const rightGallery = document.querySelector(".editor-gallery-right");
+const leftColorGallery = document.querySelector(".editor-color-gallery-left");
+const rightColorGallery = document.querySelector(".editor-color-gallery-right");
 const finishButton = document.querySelector(".editor-finish");
+const LEFT_COLORS = ["#B80B1F", "#E29544", "#EADB01", "#64955D", "#7AABD2", "#5D2D91"];
+const RIGHT_COLORS = ["#6B4A42", "#727580", "#B0A6B6", "#E0E0E0", "#EBE8DB", "#000000"];
 
 let composition = { parts: [] };
 let selectedPartId = null;
 let activeAction = null;
+let activeColor = "#FFFFFF";
 
 function makePart(shapeIndex, clientX, clientY) {
   const rect = editorSurface.getBoundingClientRect();
@@ -19,7 +24,7 @@ function makePart(shapeIndex, clientX, clientY) {
     y,
     size: 18,
     rotation: 0,
-    color: "#FFFFFF"
+    color: activeColor
   };
 }
 
@@ -49,6 +54,33 @@ function renderGalleries() {
     });
 
     (index < 8 ? leftGallery : rightGallery).appendChild(button);
+  });
+
+  renderColorGallery(leftColorGallery, LEFT_COLORS);
+  renderColorGallery(rightColorGallery, RIGHT_COLORS);
+  updateColorGalleryState();
+}
+
+function renderColorGallery(gallery, colors) {
+  gallery.innerHTML = "";
+
+  colors.forEach((color) => {
+    const button = document.createElement("button");
+    button.className = "editor-color-item";
+    button.type = "button";
+    button.dataset.color = color;
+    button.style.setProperty("--swatch-color", color);
+    button.setAttribute("aria-label", `Use color ${color}`);
+
+    const swatch = document.createElement("span");
+    swatch.className = "editor-color-swatch";
+    button.appendChild(swatch);
+
+    button.addEventListener("click", () => {
+      applyColor(color);
+    });
+
+    gallery.appendChild(button);
   });
 }
 
@@ -96,6 +128,8 @@ function renderEditor() {
 
     editorSurface.appendChild(partElement);
   });
+
+  updateColorGalleryState();
 
   finishButton.classList.toggle("is-disabled", composition.parts.length === 0);
   finishButton.setAttribute("aria-disabled", composition.parts.length === 0 ? "true" : "false");
@@ -150,6 +184,10 @@ function findPart(partId) {
 
 function selectPart(partId) {
   selectedPartId = partId;
+  const selected = getSelectedPart();
+  if (selected) {
+    activeColor = selected.color;
+  }
   renderEditor();
 }
 
@@ -162,6 +200,28 @@ function clearSelection(event) {
 
 function saveEditor() {
   saveComposition(composition);
+}
+
+function applyColor(color) {
+  activeColor = color;
+  const selected = getSelectedPart();
+
+  if (selected) {
+    selected.color = color;
+    renderEditor();
+    saveEditor();
+    return;
+  }
+
+  updateColorGalleryState();
+}
+
+function updateColorGalleryState() {
+  document.querySelectorAll(".editor-color-item").forEach((button) => {
+    const isActive = button.dataset.color?.toLowerCase() === activeColor.toLowerCase();
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
 }
 
 function pointToPercent(clientX, clientY) {

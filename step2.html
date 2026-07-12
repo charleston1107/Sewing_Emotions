@@ -2,21 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=step1.html">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redirecting | Sewing Emotions</title>
+  <title>Choose Colors | Sewing Emotions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
-<body class="maker-page">
-  <a class="last-step-button" href="index.html">Last Step</a>
-  <main class="library-stage" aria-label="Redirecting to editor">
-    <h1>Redirecting</h1>
+<body class="editor-page color-step-page">
+  <a class="last-step-button" href="step1.html">Last Step</a>
+  <main class="editor-stage" aria-label="Choose emotion shape colors">
+    <aside class="editor-side-panel editor-side-left" aria-label="Left color palette">
+      <div class="editor-color-gallery editor-color-gallery-left" aria-label="Left color gallery"></div>
+    </aside>
+
+    <section class="editor-frame" aria-label="Color selection frame">
+      <div class="editor-surface color-editor-surface" aria-label="Saved shape canvas"></div>
+    </section>
+
+    <aside class="editor-side-panel editor-side-right" aria-label="Right color palette">
+      <div class="editor-color-gallery editor-color-gallery-right" aria-label="Right color gallery"></div>
+    </aside>
+
+    <a class="finish-button editor-finish" href="step3.html">Finish</a>
   </main>
-  <script>
-    window.location.replace("step1.html");
-  </script>
+
+  <script src="shared.js?v=14"></script>
+  <script src="step2.js?v=14"></script>
 </body>
 </html>
