@@ -233,12 +233,12 @@ button {
 .editor-stage {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(132px, 15vw) minmax(440px, 1fr) minmax(132px, 15vw);
+  grid-template-columns: 20vw 60vw 20vw;
   align-items: center;
-  gap: clamp(16px, 2.2vw, 34px);
-  width: 100%;
+  gap: 0;
+  width: 100vw;
   min-height: 100vh;
-  padding: 52px clamp(14px, 2.6vw, 36px) 82px;
+  padding: 0;
 }
 
 .editor-side-panel {
@@ -246,8 +246,9 @@ button {
   flex-direction: column;
   justify-content: center;
   gap: 10px;
-  width: 100%;
-  height: 82vh;
+  justify-self: center;
+  width: 15vw;
+  height: 80vh;
 }
 
 .editor-gallery,
@@ -255,13 +256,13 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(46px, 1fr));
   gap: 10px;
-  align-content: center;
+  align-content: start;
   justify-content: center;
   width: 100%;
 }
 
 .editor-gallery {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
 }
 
 .editor-color-gallery {
@@ -273,7 +274,7 @@ button {
   display: grid;
   place-items: center;
   width: 100%;
-  height: clamp(54px, 8.4vh, 74px);
+  height: calc((80vh - 60px) / 7);
   padding: 8px 10px;
   border: 0;
   border-radius: 7px;
@@ -293,7 +294,7 @@ button {
 
 .editor-color-swatch {
   width: min(46px, 62%);
-  height: min(46px, 70%);
+  aspect-ratio: 1;
   border-radius: 50%;
   background: var(--swatch-color);
   filter: blur(0.6px);
@@ -314,10 +315,8 @@ button {
 .editor-frame {
   position: relative;
   justify-self: center;
-  transform: translateY(-20px);
-
-  width: min(68vw, 960px);
-  height: 82vh;
+  width: 60vw;
+  height: 80vh;
   border-radius: 7px;
   background:
     linear-gradient(rgba(96, 59, 39, 0.05) 1px, transparent 1px),
@@ -768,6 +767,11 @@ button {
     grid-template-columns: repeat(8, minmax(38px, 1fr));
     gap: 8px;
     width: 100%;
+  }
+
+  .editor-gallery-item,
+  .editor-color-item {
+    height: clamp(42px, 9vw, 58px);
   }
 
   .editor-color-gallery {
