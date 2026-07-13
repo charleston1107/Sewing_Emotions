@@ -1,20 +1,22 @@
 const SEWING_SHAPES = [
-  "assets/Ellipse 39.svg",
-  "assets/Ellipse 40.svg",
-  "assets/Polygon 12.svg",
-  "assets/Polygon 13.svg",
-  "assets/Polygon 14.svg",
-  "assets/Rectangle 29.svg",
-  "assets/Rectangle leg 1.svg",
-  "assets/Rectangle leg 2.svg",
-  "assets/Rectangle leg 3.svg",
-  "assets/Vector 45.svg",
-  "assets/Vector 47.svg",
-  "assets/Vector 48.svg",
-  "assets/Vector 49.svg",
-  "assets/Vector 50.svg",
-  "assets/Vector 52.svg",
-  "assets/Vector 53.svg"
+  "assets/shapes/circle.svg",
+  "assets/shapes/ellipse.svg",
+  "assets/shapes/hectagon.svg",
+  "assets/shapes/normal_rectangle.svg",
+  "assets/shapes/pentagon.svg",
+  "assets/shapes/rounded_rectangle.svg",
+  "assets/shapes/smooth_triangle.svg",
+  "assets/shapes/square.svg",
+  "assets/shapes/stone.svg",
+  "assets/shapes/triangle.svg",
+  "assets/shapes/cloud.svg",
+  "assets/shapes/eight.svg",
+  "assets/shapes/durian.svg",
+  "assets/shapes/spike.svg",
+  "assets/shapes/sharp.svg",
+  "assets/shapes/mud.svg",
+  "assets/shapes/dart.svg",
+  "assets/shapes/round_triangle.svg"
 ];
 
 const DEFAULT_COMPOSITION = {

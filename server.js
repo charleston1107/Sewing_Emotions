@@ -1,6 +1,7 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const { callOpenRouterEmotionChat } = require("./openrouter-chat");
 
 const ROOT_DIR = __dirname;
 loadEnvFile();
@@ -28,6 +29,11 @@ const server = http.createServer(async (request, response) => {
   try {
     if (request.method === "POST" && request.url === "/api/generate-image") {
       await handleGenerateImage(request, response);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/emotion-chat") {
+      await handleEmotionChat(request, response);
       return;
     }
 
@@ -125,6 +131,26 @@ async function handleGenerateImage(request, response) {
   sendJson(response, 200, result);
 }
 
+async function handleEmotionChat(request, response) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey || apiKey === "put_your_openrouter_api_key_here") {
+    sendJson(response, 500, {
+      error: "Missing OPENROUTER_API_KEY. Add it to .env or Render environment variables before starting the server."
+    });
+    return;
+  }
+
+  const body = await readJson(request);
+  const result = await callOpenRouterEmotionChat({
+    apiKey,
+    userMessage: body.userMessage,
+    history: Array.isArray(body.history) ? body.history : [],
+    character: body.character || {}
+  });
+
+  sendJson(response, 200, result);
+}
+
 function readJson(request) {
   return new Promise((resolve, reject) => {
     let size = 0;
@@ -175,10 +201,11 @@ function buildImagePrompt(body) {
 
 function shapeNameFromPath(shapeIndex) {
   const pathName = [
-    "Ellipse 39", "Ellipse 40", "Polygon 12", "Polygon 13",
-    "Polygon 14", "Rectangle 29", "Rectangle leg 1", "Rectangle leg 2",
-    "Rectangle leg 3", "Vector 45", "Vector 47", "Vector 48",
-    "Vector 49", "Vector 50", "Vector 52", "Vector 53"
+    "circle", "ellipse", "hectagon", "normal rectangle",
+    "pentagon", "rounded rectangle", "smooth triangle", "square",
+    "stone", "triangle", "cloud", "eight",
+    "durian", "spike", "sharp", "mud",
+    "dart", "round triangle"
   ][Number(shapeIndex)];
   return pathName || `shape ${shapeIndex}`;
 }

@@ -58,7 +58,7 @@ function renderGalleries() {
       startGalleryDrag(event, index, button);
     });
 
-    (index < 8 ? leftGallery : rightGallery).appendChild(button);
+    (index < 10 ? leftGallery : rightGallery).appendChild(button);
   });
 }
 
