@@ -101,3 +101,40 @@ function createCharacter(index) {
 }
 
 positions.forEach((_, index) => createCharacter(index));
+
+function createSavedCharacterEntry() {
+  if (typeof loadCharacters !== "function") {
+    return;
+  }
+
+  const characters = loadCharacters();
+  const character = characters.at(-1) || loadCurrentCharacter();
+  if (!character?.imageUrl) {
+    return;
+  }
+
+  const seed = Array.from(character.id || "emotion").reduce((total, char) => total + char.charCodeAt(0), 0);
+  const button = document.createElement("button");
+  const image = document.createElement("img");
+
+  button.className = "saved-home-character";
+  button.type = "button";
+  button.setAttribute("aria-label", "Open saved emotion character");
+  button.style.left = `${12 + seeded(seed) * 68}%`;
+  button.style.top = `${14 + seeded(seed + 17) * 62}%`;
+  button.style.setProperty("--float-duration", `${9 + seeded(seed + 4) * 4}s`);
+  button.style.setProperty("--float-delay", `${seeded(seed + 9) * -5}s`);
+
+  image.src = character.imageUrl;
+  image.alt = "";
+  button.appendChild(image);
+
+  button.addEventListener("click", () => {
+    saveCurrentCharacter(character);
+    window.location.href = "emo_library.html";
+  });
+
+  characterField.appendChild(button);
+}
+
+createSavedCharacterEntry();
