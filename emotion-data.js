@@ -59,6 +59,8 @@ function normalizeCharacter(character) {
     imageUrl: character.imageUrl || localStorage.getItem(GENERATED_IMAGE_KEY) || "",
     messages: Array.isArray(character.messages) ? character.messages : [],
     userInputs: Array.isArray(character.userInputs) ? character.userInputs : [],
+    designChoices: character.designChoices || {},
+    emotionHints: character.emotionHints || {},
     createdAt: character.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

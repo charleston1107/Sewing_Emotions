@@ -1,20 +1,28 @@
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "deepseek/deepseek-v3.2-exp";
 
-async function callOpenRouterEmotionChat({ apiKey, userMessage, history = [], character = {} }) {
+async function callOpenRouterEmotionChat({ apiKey, userMessage, history = [], character = {}, opening = false }) {
   const messages = [
     {
       role: "system",
-      content: buildEmotionSystemPrompt(character)
+      content: buildEmotionSystemPrompt(character, opening)
     },
     ...history.slice(-10).map((message) => ({
       role: message.role === "assistant" ? "assistant" : "user",
       content: String(message.content || "")
-    })),
-    {
+    }))
+  ];
+
+  if (opening) {
+    messages.push({
+      role: "user",
+      content: "Please make your first opening reflection now based on the design emotion hints. Ask the user to describe how they feel."
+    });
+  } else {
+    messages.push({
       role: "user",
       content: String(userMessage || "")
-    }
-  ];
+    });
+  }
 
   const apiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -49,19 +57,25 @@ async function callOpenRouterEmotionChat({ apiKey, userMessage, history = [], ch
   return { reply };
 }
 
-function buildEmotionSystemPrompt(character) {
+function buildEmotionSystemPrompt(character, opening) {
   const userInputs = Array.isArray(character.userInputs) ? character.userInputs.filter(Boolean) : [];
   const priorDetails = userInputs.length ? userInputs.map((input, index) => `${index + 1}. ${input}`).join("\n") : "No user details yet.";
+  const hintSummary = buildEmotionHintSummary(character.emotionHints);
+  const designSummary = buildDesignSummary(character.designChoices);
   const inputCount = userInputs.length;
   let nextMove = "Ask what emotion you are and invite the user to describe how they feel.";
 
-  if (inputCount === 1) {
+  if (opening) {
+    nextMove = "This is your first message. Use the design emotion hints only as possible clues, not certainty. Speak as if you are sensing the user's plushie: gently reflect 1-3 likely feelings, adjust your emotional tone to those possibilities, and ask whether the user wants to tell you more.";
+  }
+
+  if (!opening && inputCount === 1) {
     nextMove = "The user just answered the opening question. Identify what kind of emotion you are, and talk in the same tone as that emotion. For example, if the user says they feels anxious, you should talk in an anxious way. Ask exactly one gentle follow-up question about their emotion.";
-  } else if (inputCount === 2) {
+  } else if (!opening && inputCount === 2) {
     nextMove = "Ask about the specific event or situation that caused this emotion, unless the user already clearly explained it.";
-  } else if (inputCount === 3) {
+  } else if (!opening && inputCount === 3) {
     nextMove = "Ask how this emotion feels in the user's body.";
-  } else if (inputCount > 3) {
+  } else if (!opening && inputCount > 3) {
     nextMove = "Continue as this emotion character. Talk with the same tone as that emotion.Sometimes reference one specific concrete detail from the known user details.";
   }
 
@@ -74,8 +88,34 @@ function buildEmotionSystemPrompt(character) {
     "",
     `Current conversation move: ${nextMove}`,
     "",
+    "Design choices the user made:",
+    designSummary,
+    "",
+    "Possible emotion hints from design mappings:",
+    hintSummary,
+    "",
     "Known user details for this character:",
     priorDetails
+  ].join("\n");
+}
+
+function buildEmotionHintSummary(emotionHints = {}) {
+  const ranked = Array.isArray(emotionHints.ranked) ? emotionHints.ranked : [];
+  if (ranked.length === 0) {
+    return "No mapping hints were available. Do not invent a label; invite the user to describe the feeling.";
+  }
+
+  return ranked.slice(0, 6).map((item) => `${item.emotion}: ${item.count}`).join(", ");
+}
+
+function buildDesignSummary(designChoices = {}) {
+  const shapes = Array.isArray(designChoices.shapes) ? designChoices.shapes.join(", ") : "";
+  const colors = Array.isArray(designChoices.colors) ? designChoices.colors.join(", ") : "";
+  const faces = Array.isArray(designChoices.faces) ? designChoices.faces.join(", ") : "";
+  return [
+    `Shapes: ${shapes || "none recorded"}`,
+    `Colors: ${colors || "none recorded"}`,
+    `Facial expressions: ${faces || "none recorded"}`
   ].join("\n");
 }
 

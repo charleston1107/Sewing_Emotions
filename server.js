@@ -145,7 +145,8 @@ async function handleEmotionChat(request, response) {
     apiKey,
     userMessage: body.userMessage,
     history: Array.isArray(body.history) ? body.history : [],
-    character: body.character || {}
+    character: body.character || {},
+    opening: body.opening === true
   });
 
   sendJson(response, 200, result);
