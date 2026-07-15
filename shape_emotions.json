@@ -1,0 +1,19 @@
+{
+"Rectangle": ["depressed"],
+"Triangle": ["angry","depressed"],
+"Pentagon": ["lost"],
+"Hectagon": ["anxious"],
+"Circle": ["desperate","depressed","lost"],
+"Ellipse": ["burnout","self-critical","desperate"],
+"Normal_rectangle": ["depressed"],
+"Rounded_rectangle": ["depressed","self-critical"],
+"Smooth_triangle": ["self-critical"],
+"Round_triangle": ["angry","insecure","lost"],
+"Dart": ["self-critical","anxious","lost","jealous"],
+"Mud": ["desperate","anxious","insecure"],
+"Sharp": ["angry"],
+"Spike": ["angry","anxious"],
+"Durian": ["anxious","hateful"],
+"Eight": ["lost","stressed"],
+"Cloud":["depressed"]
+}
