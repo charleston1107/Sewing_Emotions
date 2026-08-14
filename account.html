@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Account | Sewing Emotions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=24">
+</head>
+<body class="account-page">
+  <a class="last-step-button" href="index.html">Return Home</a>
+
+  <main class="account-stage">
+    <section class="account-card" aria-labelledby="account-title">
+      <div class="account-intro">
+        <p class="account-eyebrow">Your emotion library</p>
+        <h1 id="account-title">Keep what you create</h1>
+        <p class="account-description">Create an account so your emotion characters can stay with you and return in future visits.</p>
+      </div>
+
+      <div class="account-auth-view" data-auth-view="form">
+        <div class="account-tabs" role="tablist" aria-label="Account action">
+          <button class="account-tab is-active" type="button" role="tab" aria-selected="true" data-account-mode="signin">Log in</button>
+          <button class="account-tab" type="button" role="tab" aria-selected="false" data-account-mode="signup">Create account</button>
+        </div>
+
+        <form class="account-form" novalidate>
+          <label class="account-field account-name-field" hidden>
+            <span>Name</span>
+            <input name="displayName" type="text" autocomplete="name" maxlength="80" placeholder="What should we call you?">
+          </label>
+
+          <label class="account-field">
+            <span>Email</span>
+            <input name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+          </label>
+
+          <label class="account-field">
+            <span>Password</span>
+            <input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+          </label>
+
+          <button class="account-submit-button" type="submit">Log in</button>
+          <p class="account-form-message" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="account-auth-view account-signed-in" data-auth-view="signed-in" hidden>
+        <p class="account-signed-in-label">You are logged in as</p>
+        <p class="account-user-email"></p>
+        <div class="account-actions">
+          <a class="account-continue-button" href="emo_library.html">Open Emotion Library</a>
+          <button class="account-logout-button" type="button">Log out</button>
+        </div>
+        <p class="account-session-message" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js?v=1"></script>
+  <script src="account.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "idf.currentSetup": "/Users/wangjiaxin/.espressif/master/esp-idf",
+  "idf.customExtraVars": {},
+  "clangd.path": "/Users/wangjiaxin/.espressif/tools/esp-clangd/esp-21.1.3_20260408/esp-clangd/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=**",
+    "--compile-commands-dir=/Users/wangjiaxin/WebProjects/Sewing_Emotions_Web/Sewing_Emotions/build"
+  ]
+}

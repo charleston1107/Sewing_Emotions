@@ -27,6 +27,11 @@ const mimeTypes = {
 
 const server = http.createServer(async (request, response) => {
   try {
+    if (request.method === "GET" && request.url === "/api/public-config") {
+      handlePublicConfig(response);
+      return;
+    }
+
     if (request.method === "POST" && request.url === "/api/generate-image") {
       await handleGenerateImage(request, response);
       return;
@@ -48,6 +53,23 @@ const server = http.createServer(async (request, response) => {
     sendJson(response, 500, { error: error.message || "Unexpected server error" });
   }
 });
+
+function handlePublicConfig(response) {
+  const supabaseUrl = process.env.SUPABASE_URL || "";
+  const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || "";
+
+  if (!supabaseUrl || !supabasePublishableKey) {
+    sendJson(response, 503, {
+      error: "Supabase is not configured on this server."
+    });
+    return;
+  }
+
+  sendJson(response, 200, {
+    supabaseUrl,
+    supabasePublishableKey
+  });
+}
 
 server.listen(PORT, () => {
   console.log(`Sewing Emotions server running at http://localhost:${PORT}`);
