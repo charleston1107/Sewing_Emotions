@@ -7,26 +7,49 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=22">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body class="editor-page library-page">
-  <a class="last-step-button" href="index.html">Last Step</a>
-  <main class="character-stage library-character-stage" aria-label="Emotion library chat">
-    <section class="character-image-frame" aria-label="Saved emotion character image"></section>
-    <section class="character-chat-bubble large-chat-bubble" aria-live="polite">
-      <p>I'm here with the feelings you gave me.</p>
+  <a class="last-step-button" href="index.html">Return Home</a>
+  <a class="account-entry-link" href="account.html">Account</a>
+
+  <main class="library-shell">
+    <section class="library-collection-view" data-library-view="collection" aria-labelledby="library-title">
+      <header class="library-collection-header">
+        <p class="library-eyebrow">Your private collection</p>
+        <h1 id="library-title">Emotion Library</h1>
+        <p class="library-introduction">Every character remembers the feeling and conversations you made together.</p>
+        <a class="library-create-button" href="welcome_1.html">Create another emotion</a>
+      </header>
+
+      <p class="library-status" aria-live="polite">Opening your library...</p>
+      <section class="library-card-grid" aria-label="Saved emotion characters"></section>
+      <section class="library-empty-state" hidden>
+        <h2>No characters are resting here yet</h2>
+        <p>Create an emotion character and finish its conversation to save it in this library.</p>
+        <a href="welcome_1.html">Create your first character</a>
+      </section>
     </section>
-    <form class="character-input-bar">
-      <input class="character-text-input" type="text" autocomplete="off" aria-label="Message to saved emotion character">
-      <button class="character-send-button" type="submit">Send</button>
-      <a class="character-home-button" href="index.html">Return Home</a>
-    </form>
+
+    <section class="character-stage library-character-stage" data-library-view="detail" aria-label="Emotion character chat" hidden>
+      <a class="library-back-button" href="emo_library.html">All Characters</a>
+      <h1 class="library-detail-name"></h1>
+      <section class="character-image-frame" aria-label="Saved emotion character image"></section>
+      <section class="character-chat-bubble large-chat-bubble" aria-live="polite">
+        <p>Opening this character's memories...</p>
+      </section>
+      <form class="character-input-bar">
+        <input class="character-text-input" type="text" autocomplete="off" aria-label="Message to saved emotion character">
+        <button class="character-send-button" type="submit">Send</button>
+        <a class="character-home-button" href="emo_library.html">Library</a>
+      </form>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="emotion-data.js?v=24"></script>
+  <script src="emotion-data.js?v=25"></script>
   <script src="supabase-client.js?v=2"></script>
-  <script src="character-storage.js?v=1"></script>
-  <script src="emo_library.js?v=24"></script>
+  <script src="character-storage.js?v=2"></script>
+  <script src="emo_library.js?v=25"></script>
 </body>
 </html>

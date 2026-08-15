@@ -189,6 +189,116 @@ async function loadCharacterFromAccount(characterId) {
   });
 }
 
+async function listCharactersFromAccount() {
+  const client = await getSupabaseClient();
+  const user = await getSignedInUser();
+
+  if (!user) {
+    return { requiresLogin: true, characters: [] };
+  }
+
+  const { data: rows, error } = await client
+    .from("characters")
+    .select("id, name, image_path, mapping_hints, created_at, updated_at")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  const characters = await Promise.all((rows || []).map(async (row) => {
+    let imageUrl = "";
+    try {
+      imageUrl = await createSignedCharacterImage(client, row.image_path);
+    } catch (error) {
+      console.warn(`The image for character ${row.id} could not be opened.`, error);
+    }
+
+    return {
+      id: row.id,
+      name: row.name,
+      imagePath: row.image_path || "",
+      imageUrl,
+      emotionHints: row.mapping_hints || {},
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }));
+
+  return { requiresLogin: false, characters };
+}
+
+async function renameCharacterInAccount(characterId, nextName) {
+  const client = await getSupabaseClient();
+  const user = await getSignedInUser();
+  const name = String(nextName || "").trim();
+
+  if (!user) {
+    throw new Error("Please log in before renaming a character.");
+  }
+  if (!name || name.length > 100) {
+    throw new Error("Character names must contain between 1 and 100 characters.");
+  }
+
+  const { error } = await client
+    .from("characters")
+    .update({ name })
+    .eq("id", characterId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw error;
+  }
+
+  return { id: characterId, name };
+}
+
+async function deleteCharacterFromAccount(characterId, imagePath = "") {
+  const client = await getSupabaseClient();
+  const user = await getSignedInUser();
+
+  if (!user) {
+    throw new Error("Please log in before deleting a character.");
+  }
+
+  const { error } = await client
+    .from("characters")
+    .delete()
+    .eq("id", characterId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw error;
+  }
+
+  let imageCleanupError = null;
+  if (imagePath) {
+    const { error: storageError } = await client.storage
+      .from(CHARACTER_IMAGE_BUCKET)
+      .remove([imagePath]);
+    imageCleanupError = storageError || null;
+  }
+
+  return { id: characterId, imageCleanupError };
+}
+
+async function createSignedCharacterImage(client, imagePath) {
+  if (!imagePath) {
+    return "";
+  }
+
+  const { data, error } = await client.storage
+    .from(CHARACTER_IMAGE_BUCKET)
+    .createSignedUrl(imagePath, 60 * 60);
+
+  if (error) {
+    throw error;
+  }
+
+  return data.signedUrl;
+}
+
 function ensureMessageIds(character) {
   character.messages = (character.messages || []).map((message) => ({
     ...message,
@@ -233,3 +343,6 @@ function isUuid(value) {
 window.getSignedInUser = getSignedInUser;
 window.saveCharacterToAccount = saveCharacterToAccount;
 window.loadCharacterFromAccount = loadCharacterFromAccount;
+window.listCharactersFromAccount = listCharactersFromAccount;
+window.renameCharacterInAccount = renameCharacterInAccount;
+window.deleteCharacterFromAccount = deleteCharacterFromAccount;

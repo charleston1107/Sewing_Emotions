@@ -53,6 +53,37 @@ function saveCharacterToLibrary(character) {
   saveCurrentCharacter(normalized);
 }
 
+function removeCharacterFromLocalLibrary(characterId) {
+  const characters = loadCharacters().filter((character) => (
+    character.id !== characterId && character.remote?.characterId !== characterId
+  ));
+  localStorage.setItem(CHARACTER_LIST_KEY, JSON.stringify(characters));
+
+  const current = loadCurrentCharacter();
+  if (current.id === characterId || current.remote?.characterId === characterId) {
+    localStorage.removeItem(CURRENT_CHARACTER_KEY);
+    localStorage.removeItem(GENERATED_IMAGE_KEY);
+  }
+}
+
+function renameCharacterInLocalLibrary(characterId, name) {
+  const characters = loadCharacters();
+  const match = characters.find((character) => (
+    character.id === characterId || character.remote?.characterId === characterId
+  ));
+
+  if (match) {
+    match.name = name;
+    localStorage.setItem(CHARACTER_LIST_KEY, JSON.stringify(characters));
+  }
+
+  const current = loadCurrentCharacter();
+  if (current.id === characterId || current.remote?.characterId === characterId) {
+    current.name = name;
+    saveCurrentCharacter(current);
+  }
+}
+
 function normalizeCharacter(character) {
   return {
     id: character.id || makeCharacterId(),
