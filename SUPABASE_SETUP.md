@@ -2,7 +2,10 @@
 
 ## 1. Run the database migration
 
-Open the Supabase project dashboard, choose **SQL Editor**, create a new query, paste the complete contents of `supabase/migrations/001_sewing_emotions_foundation.sql`, and run it once.
+Open the Supabase project dashboard, choose **SQL Editor**, and run the migrations in number order:
+
+1. `supabase/migrations/001_sewing_emotions_foundation.sql`
+2. `supabase/migrations/002_message_sync_ids.sql`
 
 The migration creates the account profile, character, and message tables; enables Row Level Security; adds ownership policies; and creates the private `emotion-characters` image bucket.
 
@@ -29,4 +32,4 @@ The publishable key is deliberately returned to the browser by `/api/public-conf
 
 ## 4. Current scope
 
-`account.html` supports creating an account, logging in, restoring a browser session, and logging out. Character records and messages are not uploaded yet; the existing character flow continues to use localStorage until the next migration step.
+`account.html` supports creating an account, logging in, restoring a browser session, and logging out. A character remains in localStorage while it is being created; pressing Finish uploads it and its existing chat to the signed-in account. Guests are sent through the account page and returned to the pending character after authentication.

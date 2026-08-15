@@ -56,11 +56,16 @@ function saveCharacterToLibrary(character) {
 function normalizeCharacter(character) {
   return {
     id: character.id || makeCharacterId(),
+    name: character.name || "My emotion",
     imageUrl: character.imageUrl || localStorage.getItem(GENERATED_IMAGE_KEY) || "",
     messages: Array.isArray(character.messages) ? character.messages : [],
     userInputs: Array.isArray(character.userInputs) ? character.userInputs : [],
     designChoices: character.designChoices || {},
     emotionHints: character.emotionHints || {},
+    emotionProfile: character.emotionProfile || {},
+    personalityProfile: character.personalityProfile || {},
+    conversationSummary: character.conversationSummary || "",
+    remote: character.remote || null,
     createdAt: character.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

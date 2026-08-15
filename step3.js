@@ -348,6 +348,7 @@ generateButton.addEventListener("click", async () => {
     }
 
     localStorage.setItem("sewing-emotions-generated-image", data.imageUrl);
+    localStorage.removeItem("sewing-emotions-current-character");
     window.location.href = "step4.html";
   } catch (error) {
     generateStatus.textContent = error.message;

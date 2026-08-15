@@ -10,10 +10,13 @@ const userEmail = document.querySelector(".account-user-email");
 const continueButton = document.querySelector(".account-continue-button");
 const logoutButton = document.querySelector(".account-logout-button");
 const modeButtons = [...document.querySelectorAll("[data-account-mode]")];
+const ACCOUNT_RETURN_PATH_KEY = "sewing-emotions-account-return-path";
 
 let accountMode = new URLSearchParams(window.location.search).get("mode") === "signup" ? "signup" : "signin";
 let supabaseClient;
 let accountServiceReady = false;
+
+rememberReturnPath();
 
 setAccountMode(accountMode);
 initializeAccount();
@@ -101,12 +104,7 @@ async function initializeAccount() {
 
 async function createAccount(email, password) {
   const displayName = accountForm.elements.displayName.value.trim();
-  const redirectUrl = new URL("account.html?confirmed=1", window.location.href);
-  const returnTo = safeReturnPath();
-
-  if (returnTo) {
-    redirectUrl.searchParams.set("returnTo", returnTo);
-  }
+  const redirectUrl = new URL("account.html", window.location.href);
 
   const { data, error } = await supabaseClient.auth.signUp({
     email,
@@ -173,16 +171,25 @@ function showSignedOut() {
 function followReturnPath() {
   const returnTo = safeReturnPath();
   if (returnTo) {
+    sessionStorage.removeItem(ACCOUNT_RETURN_PATH_KEY);
     window.location.replace(returnTo);
   }
 }
 
 function safeReturnPath() {
-  const value = new URLSearchParams(window.location.search).get("returnTo");
+  const queryValue = new URLSearchParams(window.location.search).get("returnTo");
+  const value = queryValue || sessionStorage.getItem(ACCOUNT_RETURN_PATH_KEY);
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
     return "";
   }
   return value;
+}
+
+function rememberReturnPath() {
+  const value = new URLSearchParams(window.location.search).get("returnTo");
+  if (value?.startsWith("/") && !value.startsWith("//")) {
+    sessionStorage.setItem(ACCOUNT_RETURN_PATH_KEY, value);
+  }
 }
 
 function setBusy(busy) {

@@ -5,9 +5,15 @@ const textInput = document.querySelector(".character-text-input");
 const finishButton = document.querySelector(".character-finish-button");
 
 let character = loadCurrentCharacter();
+let savingCharacter = false;
 
 renderCharacterImage();
-prepareOpeningReflection();
+const openingReflectionPromise = prepareOpeningReflection();
+
+if (new URLSearchParams(window.location.search).get("save") === "1") {
+  window.history.replaceState({}, "", "character.html");
+  openingReflectionPromise.then(finishCharacter);
+}
 
 function renderCharacterImage() {
   characterFrame.innerHTML = "";
@@ -32,7 +38,7 @@ inputForm.addEventListener("submit", async (event) => {
 
   textInput.value = "";
   character.userInputs.push(userMessage);
-  character.messages.push({ role: "user", content: userMessage, at: new Date().toISOString() });
+  character.messages.push({ id: crypto.randomUUID(), role: "user", content: userMessage, at: new Date().toISOString() });
   chatBubble.textContent = "I'm listening...";
   saveCurrentCharacter(character);
 
@@ -54,7 +60,7 @@ inputForm.addEventListener("submit", async (event) => {
       throw new Error(data.error || "The emotion character could not reply.");
     }
 
-    character.messages.push({ role: "assistant", content: data.reply, at: new Date().toISOString() });
+    character.messages.push({ id: crypto.randomUUID(), role: "assistant", content: data.reply, at: new Date().toISOString() });
     chatBubble.textContent = data.reply;
   } catch (error) {
     chatBubble.textContent = error.message;
@@ -63,10 +69,35 @@ inputForm.addEventListener("submit", async (event) => {
   saveCurrentCharacter(character);
 });
 
-finishButton.addEventListener("click", () => {
+finishButton.addEventListener("click", finishCharacter);
+
+async function finishCharacter() {
+  if (savingCharacter) {
+    return;
+  }
+
   saveCharacterToLibrary(character);
-  window.location.href = "emo_library.html";
-});
+  savingCharacter = true;
+  finishButton.disabled = true;
+  finishButton.textContent = "Saving...";
+
+  try {
+    const result = await saveCharacterToAccount(character);
+
+    if (result.requiresLogin) {
+      const returnTo = encodeURIComponent("/character.html?save=1");
+      window.location.href = `account.html?mode=signup&returnTo=${returnTo}`;
+      return;
+    }
+
+    window.location.href = `emo_library.html?character=${encodeURIComponent(result.characterId)}`;
+  } catch (error) {
+    chatBubble.textContent = `I am still safe in this browser, but I could not save to your account yet. ${error.message}`;
+    savingCharacter = false;
+    finishButton.disabled = false;
+    finishButton.textContent = "Finish";
+  }
+}
 
 async function prepareOpeningReflection() {
   if (character.messages.length > 0) {
@@ -102,7 +133,7 @@ async function prepareOpeningReflection() {
       throw new Error(data.error || "The emotion character could not begin.");
     }
 
-    character.messages.push({ role: "assistant", content: data.reply, at: new Date().toISOString() });
+    character.messages.push({ id: crypto.randomUUID(), role: "assistant", content: data.reply, at: new Date().toISOString() });
     chatBubble.textContent = data.reply;
     saveCurrentCharacter(character);
   } catch (error) {

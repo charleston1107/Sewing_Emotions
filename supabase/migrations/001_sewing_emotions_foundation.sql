@@ -28,9 +28,11 @@ create table if not exists public.messages (
   id bigint generated always as identity primary key,
   character_id uuid not null references public.characters(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
+  source_message_id uuid,
   role text not null check (role in ('user', 'assistant')),
   content text not null check (char_length(content) between 1 and 20000),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  constraint messages_character_source_message_key unique (character_id, source_message_id)
 );
 
 create index if not exists characters_user_updated_idx
