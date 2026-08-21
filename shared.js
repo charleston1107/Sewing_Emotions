@@ -119,4 +119,52 @@ function renderCharacterDesign(surface, composition) {
     image.style.transform = `translate(-50%, -50%) rotate(${part.rotation || 0}deg)`;
     surface.appendChild(image);
   });
+
+  renderDrawingStrokes(surface, safeComposition.drawingStrokes);
+}
+
+function renderDrawingStrokes(surface, strokes) {
+  if (!Array.isArray(strokes) || strokes.length === 0) {
+    return;
+  }
+
+  const namespace = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(namespace, "svg");
+  svg.classList.add("rendered-drawing-layer");
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.setAttribute("aria-hidden", "true");
+
+  strokes.forEach((stroke) => {
+    const points = (Array.isArray(stroke.points) ? stroke.points : []).filter((point) => (
+      Number.isFinite(Number(point.x)) && Number.isFinite(Number(point.y))
+    ));
+    if (points.length === 0) {
+      return;
+    }
+
+    if (points.length === 1) {
+      const dot = document.createElementNS(namespace, "circle");
+      dot.setAttribute("cx", String(points[0].x));
+      dot.setAttribute("cy", String(points[0].y));
+      dot.setAttribute("r", String((Number(stroke.width) || 0.46) / 2));
+      dot.setAttribute("fill", stroke.color || "#603B27");
+      svg.appendChild(dot);
+      return;
+    }
+
+    const path = document.createElementNS(namespace, "path");
+    const pathData = points.map((point, index) => (
+      `${index === 0 ? "M" : "L"} ${Number(point.x).toFixed(3)} ${Number(point.y).toFixed(3)}`
+    )).join(" ");
+    path.setAttribute("d", pathData);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", stroke.color || "#603B27");
+    path.setAttribute("stroke-width", String(Number(stroke.width) || 0.46));
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(path);
+  });
+
+  surface.appendChild(svg);
 }

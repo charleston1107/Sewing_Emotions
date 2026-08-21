@@ -65,6 +65,11 @@ button {
   box-shadow: 0 10px 24px rgba(96, 59, 39, 0.1);
 }
 
+.home-library-link {
+  right: auto;
+  left: 24px;
+}
+
 .account-page {
   overflow-y: auto;
   font-family: "Instrument Sans", sans-serif;
@@ -266,9 +271,24 @@ button {
   padding: 32px;
 }
 
+.home-sewing-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.home-sewing-layer canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
 .character-field {
   position: absolute;
   inset: 0;
+  z-index: 1;
   overflow: hidden;
   pointer-events: none;
 }
@@ -277,7 +297,7 @@ button {
   position: absolute;
   z-index: 1;
   display: block;
-  width: clamp(100px, 14vw, 190px);
+  width: clamp(150px, 21vw, 285px);
   aspect-ratio: var(--design-aspect, 1.2);
   color: inherit;
   filter: drop-shadow(0 12px 14px rgba(96, 59, 39, 0.13));
@@ -303,6 +323,16 @@ button {
   height: auto;
   pointer-events: none;
   user-select: none;
+}
+
+.rendered-drawing-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
 }
 
 .emo-character {
@@ -1340,15 +1370,96 @@ button {
   place-items: center;
   width: 100%;
   min-height: 100vh;
+  padding: 34px 5vw 112px;
+  overflow: hidden;
+}
+
+.sewing-completion-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(32px, 7vw, 110px);
+  width: min(92vw, 1120px);
+}
+
+.sewing-completion-panel {
+  display: grid;
+  grid-template-rows: 62vh auto;
+  align-items: center;
+  justify-items: center;
+  min-width: 0;
+}
+
+.sewing-generated-frame {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 60vh;
+}
+
+.sewing-generated-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 22px rgba(96, 59, 39, 0.12));
+}
+
+.sewing-empty-message {
+  margin: 0;
+  color: rgba(96, 59, 39, 0.72);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 0.92rem;
+}
+
+.sewing-completion-panel > p {
+  width: min(100%, 470px);
+  margin: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .sewing-breathing-circle {
+  position: relative;
+  left: auto;
+  top: auto;
   opacity: 1;
+  transform: none;
   animation: breatheCircle 5s ease-in-out infinite;
 }
 
 .sewing-finish-button {
-  bottom: 28px;
+  bottom: 24px;
+}
+
+@media (max-width: 720px) {
+  .sewing-stage {
+    align-items: start;
+    padding: 24px 20px 104px;
+    overflow-y: auto;
+  }
+
+  .sewing-completion-layout {
+    grid-template-columns: 1fr;
+    gap: 42px;
+    width: 100%;
+  }
+
+  .sewing-completion-panel {
+    grid-template-rows: minmax(300px, 52vh) auto;
+    gap: 12px;
+  }
+
+  .sewing-generated-frame {
+    height: 50vh;
+  }
+
+  .sewing-breathing-circle {
+    width: min(68vw, 300px);
+  }
 }
 
 .character-stage {
@@ -1907,7 +2018,7 @@ button {
   }
 
   .home-design-character {
-    width: clamp(70px, 25vw, 105px);
+    width: clamp(105px, 37.5vw, 158px);
   }
 
   .home-design-character:nth-child(n + 9) {

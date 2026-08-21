@@ -23,11 +23,13 @@ const FACE_INSTRUCTIONS = [
 
 const composition = loadComposition();
 composition.faceParts = Array.isArray(composition.faceParts) ? composition.faceParts : [];
+composition.drawingStrokes = Array.isArray(composition.drawingStrokes) ? composition.drawingStrokes : [];
 
 const imageCache = new Map();
 let drawing = false;
 let drawingEnabled = false;
 let lastPoint = null;
+let activeStroke = null;
 let activeDrag = null;
 let faceInstructionStep = 0;
 let faceInstructionsComplete = false;
@@ -123,6 +125,7 @@ function resizeCanvas() {
   context.lineCap = "round";
   context.lineJoin = "round";
   context.strokeStyle = "#603B27";
+  redrawDrawingStrokes();
 }
 
 function pointFromEvent(event) {
@@ -131,6 +134,40 @@ function pointFromEvent(event) {
     x: event.clientX - rect.left,
     y: event.clientY - rect.top
   };
+}
+
+function normalizedDrawingPoint(point) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: clampValue((point.x / rect.width) * 100, 0, 100),
+    y: clampValue((point.y / rect.height) * 100, 0, 100)
+  };
+}
+
+function redrawDrawingStrokes() {
+  const rect = canvas.getBoundingClientRect();
+
+  composition.drawingStrokes.forEach((stroke) => {
+    const points = Array.isArray(stroke.points) ? stroke.points : [];
+    if (points.length === 0) {
+      return;
+    }
+
+    context.beginPath();
+    context.lineWidth = ((Number(stroke.width) || 0.46) / 100) * rect.width;
+    context.strokeStyle = stroke.color || "#603B27";
+    context.moveTo((points[0].x / 100) * rect.width, (points[0].y / 100) * rect.height);
+
+    if (points.length === 1) {
+      context.lineTo((points[0].x / 100) * rect.width + 0.01, (points[0].y / 100) * rect.height + 0.01);
+    } else {
+      points.slice(1).forEach((point) => {
+        context.lineTo((point.x / 100) * rect.width, (point.y / 100) * rect.height);
+      });
+    }
+
+    context.stroke();
+  });
 }
 
 function surfacePointToPercent(clientX, clientY) {
@@ -285,6 +322,16 @@ canvas.addEventListener("pointerdown", (event) => {
 
   drawing = true;
   lastPoint = pointFromEvent(event);
+  activeStroke = {
+    color: "#603B27",
+    width: (4 / canvas.getBoundingClientRect().width) * 100,
+    points: [normalizedDrawingPoint(lastPoint)]
+  };
+  composition.drawingStrokes.push(activeStroke);
+  context.beginPath();
+  context.moveTo(lastPoint.x, lastPoint.y);
+  context.lineTo(lastPoint.x + 0.01, lastPoint.y + 0.01);
+  context.stroke();
   canvas.setPointerCapture(event.pointerId);
 });
 
@@ -294,16 +341,26 @@ canvas.addEventListener("pointermove", (event) => {
   }
 
   const point = pointFromEvent(event);
+  const normalizedPoint = normalizedDrawingPoint(point);
+  const previousNormalizedPoint = activeStroke?.points.at(-1);
   context.beginPath();
   context.moveTo(lastPoint.x, lastPoint.y);
   context.lineTo(point.x, point.y);
   context.stroke();
+  if (!previousNormalizedPoint || Math.hypot(
+    normalizedPoint.x - previousNormalizedPoint.x,
+    normalizedPoint.y - previousNormalizedPoint.y
+  ) >= 0.08) {
+    activeStroke?.points.push(normalizedPoint);
+  }
   lastPoint = point;
 });
 
 canvas.addEventListener("pointerup", (event) => {
   drawing = false;
   lastPoint = null;
+  activeStroke = null;
+  saveComposition(composition);
   if (canvas.hasPointerCapture(event.pointerId)) {
     canvas.releasePointerCapture(event.pointerId);
   }
@@ -312,6 +369,8 @@ canvas.addEventListener("pointerup", (event) => {
 canvas.addEventListener("pointercancel", () => {
   drawing = false;
   lastPoint = null;
+  activeStroke = null;
+  saveComposition(composition);
 });
 
 window.addEventListener("resize", resizeCanvas);
