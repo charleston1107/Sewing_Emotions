@@ -19,6 +19,12 @@ const SEWING_SHAPES = [
   "assets/shapes/round_triangle.svg"
 ];
 
+const SEWING_FACE_ASSETS = {
+  brow: ["assets/face/brow_0.png", "assets/face/brow_1.png", "assets/face/brow_2.png", "assets/face/brow_3.png"],
+  eye: ["assets/face/eye_0.png", "assets/face/eye_1.png", "assets/face/eye_2.png", "assets/face/eye_3.png"],
+  mouth: ["assets/face/mouth_0.png", "assets/face/mouth_1.png", "assets/face/mouth_2.png", "assets/face/mouth_3.png"]
+};
+
 const DEFAULT_COMPOSITION = {
   parts: []
 };
@@ -82,4 +88,35 @@ function renderComposition(surface, composition, options = {}) {
   });
 
   return null;
+}
+
+function renderCharacterDesign(surface, composition) {
+  const safeComposition = composition && Array.isArray(composition.parts)
+    ? composition
+    : { parts: [], faceParts: [] };
+
+  const aspectRatio = Number(safeComposition.aspectRatio);
+  surface.parentElement?.style.setProperty(
+    "--design-aspect",
+    Number.isFinite(aspectRatio) && aspectRatio > 0 ? String(aspectRatio) : "1.2"
+  );
+
+  renderComposition(surface, safeComposition);
+
+  (safeComposition.faceParts || []).forEach((part) => {
+    const src = SEWING_FACE_ASSETS[part.type]?.[part.index];
+    if (!src) {
+      return;
+    }
+
+    const image = document.createElement("img");
+    image.className = "rendered-face-part";
+    image.src = src;
+    image.alt = "";
+    image.style.left = `${part.x}%`;
+    image.style.top = `${part.y}%`;
+    image.style.width = `${part.size || (part.type === "mouth" ? 16 : 13)}%`;
+    image.style.transform = `translate(-50%, -50%) rotate(${part.rotation || 0}deg)`;
+    surface.appendChild(image);
+  });
 }

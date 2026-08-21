@@ -1,4 +1,5 @@
-const characterFrame = document.querySelector(".character-image-frame");
+const generatedFrame = document.querySelector(".character-generated-frame");
+const designSurface = document.querySelector(".character-design-surface");
 const chatBubble = document.querySelector(".character-chat-bubble p");
 const inputForm = document.querySelector(".character-input-bar");
 const textInput = document.querySelector(".character-text-input");
@@ -7,7 +8,15 @@ const finishButton = document.querySelector(".character-finish-button");
 let character = loadCurrentCharacter();
 let savingCharacter = false;
 
-renderCharacterImage();
+if (!Array.isArray(character.designChoices?.composition?.parts)) {
+  character.designChoices = {
+    ...character.designChoices,
+    composition: JSON.parse(JSON.stringify(loadComposition()))
+  };
+  saveCurrentCharacter(character);
+}
+
+renderCharacterVisuals();
 const openingReflectionPromise = prepareOpeningReflection();
 
 if (new URLSearchParams(window.location.search).get("save") === "1") {
@@ -15,8 +24,11 @@ if (new URLSearchParams(window.location.search).get("save") === "1") {
   openingReflectionPromise.then(finishCharacter);
 }
 
-function renderCharacterImage() {
-  characterFrame.innerHTML = "";
+function renderCharacterVisuals() {
+  generatedFrame.innerHTML = "";
+
+  const composition = character.designChoices?.composition || loadComposition();
+  renderCharacterDesign(designSurface, composition);
 
   if (!character.imageUrl) {
     return;
@@ -26,7 +38,7 @@ function renderCharacterImage() {
   image.className = "character-main-image";
   image.src = character.imageUrl;
   image.alt = "Generated emotion plushie";
-  characterFrame.appendChild(image);
+  generatedFrame.appendChild(image);
 }
 
 inputForm.addEventListener("submit", async (event) => {
@@ -90,7 +102,7 @@ async function finishCharacter() {
       return;
     }
 
-    window.location.href = `emo_library.html?character=${encodeURIComponent(result.characterId)}`;
+    window.location.href = "emo_library.html";
   } catch (error) {
     chatBubble.textContent = `I am still safe in this browser, but I could not save to your account yet. ${error.message}`;
     savingCharacter = false;

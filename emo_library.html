@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body class="editor-page library-page">
   <a class="last-step-button" href="index.html">Return Home</a>
@@ -34,7 +34,10 @@
     <section class="character-stage library-character-stage" data-library-view="detail" aria-label="Emotion character chat" hidden>
       <a class="library-back-button" href="emo_library.html">All Characters</a>
       <h1 class="library-detail-name"></h1>
-      <section class="character-image-frame" aria-label="Saved emotion character image"></section>
+      <section class="character-generated-frame" aria-label="AI-generated emotion plushie image"></section>
+      <section class="character-design-frame" aria-label="Your original emotion character design">
+        <div class="character-design-surface"></div>
+      </section>
       <section class="character-chat-bubble large-chat-bubble" aria-live="polite">
         <p>Opening this character's memories...</p>
       </section>
@@ -47,9 +50,10 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="emotion-data.js?v=25"></script>
+  <script src="shared.js?v=26"></script>
+  <script src="emotion-data.js?v=26"></script>
   <script src="supabase-client.js?v=2"></script>
-  <script src="character-storage.js?v=2"></script>
-  <script src="emo_library.js?v=25"></script>
+  <script src="character-storage.js?v=3"></script>
+  <script src="emo_library.js?v=26"></script>
 </body>
 </html>

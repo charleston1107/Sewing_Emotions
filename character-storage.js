@@ -189,7 +189,7 @@ async function loadCharacterFromAccount(characterId) {
   });
 }
 
-async function listCharactersFromAccount() {
+async function listCharactersFromAccount(options = {}) {
   const client = await getSupabaseClient();
   const user = await getSignedInUser();
 
@@ -199,7 +199,7 @@ async function listCharactersFromAccount() {
 
   const { data: rows, error } = await client
     .from("characters")
-    .select("id, name, image_path, mapping_hints, created_at, updated_at")
+    .select("id, name, image_path, design_choices, mapping_hints, created_at, updated_at")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
@@ -209,10 +209,12 @@ async function listCharactersFromAccount() {
 
   const characters = await Promise.all((rows || []).map(async (row) => {
     let imageUrl = "";
-    try {
-      imageUrl = await createSignedCharacterImage(client, row.image_path);
-    } catch (error) {
-      console.warn(`The image for character ${row.id} could not be opened.`, error);
+    if (options.includeImages !== false) {
+      try {
+        imageUrl = await createSignedCharacterImage(client, row.image_path);
+      } catch (error) {
+        console.warn(`The image for character ${row.id} could not be opened.`, error);
+      }
     }
 
     return {
@@ -220,6 +222,7 @@ async function listCharactersFromAccount() {
       name: row.name,
       imagePath: row.image_path || "",
       imageUrl,
+      designChoices: row.design_choices || {},
       emotionHints: row.mapping_hints || {},
       createdAt: row.created_at,
       updatedAt: row.updated_at

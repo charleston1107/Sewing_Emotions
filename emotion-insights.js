@@ -24,7 +24,8 @@ async function buildEmotionInsightsFromDesign() {
     designChoices: {
       shapes: shapeChoices,
       colors: colorChoices,
-      faces: faceChoices
+      faces: faceChoices,
+      composition: JSON.parse(JSON.stringify(composition))
     },
     emotionHints: {
       ranked,

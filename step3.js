@@ -327,6 +327,8 @@ generateButton.addEventListener("click", async () => {
   generateStatus.textContent = "Preparing your drawing board...";
 
   try {
+    const drawingRect = drawingSurface.getBoundingClientRect();
+    composition.aspectRatio = drawingRect.width / drawingRect.height;
     saveComposition(composition);
     const boardImage = await exportBoardImage();
     generateStatus.textContent = "Asking Gemini to reinterpret your shape...";

@@ -4,7 +4,8 @@ const libraryGrid = document.querySelector(".library-card-grid");
 const libraryStatus = document.querySelector(".library-status");
 const libraryEmptyState = document.querySelector(".library-empty-state");
 const libraryDetailName = document.querySelector(".library-detail-name");
-const libraryFrame = document.querySelector(".character-image-frame");
+const libraryGeneratedFrame = document.querySelector(".character-generated-frame");
+const libraryDesignSurface = document.querySelector(".character-design-surface");
 const libraryBubble = document.querySelector(".character-chat-bubble p");
 const libraryForm = document.querySelector(".character-input-bar");
 const libraryInput = document.querySelector(".character-text-input");
@@ -167,14 +168,15 @@ function renderLoginRequired() {
 
 function renderCharacterDetail() {
   libraryDetailName.textContent = character.name || "My emotion";
-  libraryFrame.innerHTML = "";
+  libraryGeneratedFrame.innerHTML = "";
+  renderCharacterDesign(libraryDesignSurface, character.designChoices?.composition);
 
   if (character.imageUrl) {
     const image = document.createElement("img");
     image.className = "character-main-image";
     image.src = character.imageUrl;
     image.alt = `${character.name || "Saved"} emotion plushie`;
-    libraryFrame.appendChild(image);
+    libraryGeneratedFrame.appendChild(image);
   }
 
   const lastAssistantMessage = character.messages

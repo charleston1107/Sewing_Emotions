@@ -5,6 +5,7 @@ const finishButton = document.querySelector(".editor-finish");
 const instructionCloud = document.querySelector(".instruction-cloud");
 const instructionCloudText = document.querySelector(".instruction-cloud-text");
 const instructionCloudSkip = document.querySelector(".instruction-cloud-skip");
+const trashButton = document.querySelector(".editor-trash-button");
 const INSTRUCTION_LINES = [
   "Choose the shape that can best represent your current emotions.\nDrag and drop them onto the canvas.",
   "You can organize your shapes approximately within the reference lines. You can also change size or rotate your shapes.",
@@ -108,6 +109,18 @@ function renderEditor() {
   });
 
   updateFinishState();
+  trashButton.disabled = !getSelectedPart();
+}
+
+function deleteSelectedPart() {
+  if (!selectedPartId) {
+    return;
+  }
+
+  composition.parts = composition.parts.filter((part) => part.id !== selectedPartId);
+  selectedPartId = null;
+  renderEditor();
+  saveEditor();
 }
 
 function makeHandle(type, label) {
@@ -385,6 +398,8 @@ finishButton.addEventListener("click", (event) => {
 instructionCloudSkip.addEventListener("click", () => {
   completeInstructions();
 });
+
+trashButton.addEventListener("click", deleteSelectedPart);
 
 editorSurface.addEventListener("pointerdown", clearSelection);
 document.addEventListener("pointermove", updateAction);
