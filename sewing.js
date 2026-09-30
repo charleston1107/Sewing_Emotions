@@ -1,15 +1,21 @@
 /*
  * p5.js sewing interaction prototype.
  *
- * Replace drawCloth() with image(texture, -w / 2, -h / 2, w, h) when the
- * final cloth PNGs are ready. Everything else is already expressed in the
- * cloth's rotated local coordinate system, so the sewing path still works.
+ * Each texture is drawn in the cloth's rotated local coordinate system, so
+ * its needle, thread, stitches, and avoidance zone all share one transform.
  */
 
 const CLOTH_LAYOUT = [
-  { x: 0.2, y: 0.36, width: 0.23, aspect: 0.62, angle: -0.17, color: "#ef8f99", thread: "#8f2f4a" },
-  { x: 0.73, y: 0.37, width: 0.2, aspect: 0.76, angle: 0.2, color: "#e0b64d", thread: "#79532f" },
-  { x: 0.47, y: 0.72, width: 0.27, aspect: 0.53, angle: -0.08, color: "#7db6aa", thread: "#315e68" }
+  {
+    x: 0.2, y: 0.36, width: 0.21, aspect: 1162 / 1082, angle: -0.13,
+    color: "#ef8f99", thread: "#8f2f4a", texture: "pink",
+    crop: { x: 93, y: 49, width: 1082, height: 1162 }
+  },
+  {
+    x: 0.73, y: 0.37, width: 0.19, aspect: 1080 / 929, angle: 0.14,
+    color: "#e0b64d", thread: "#79532f", texture: "orange",
+    crop: { x: 166, y: 89, width: 929, height: 1080 }
+  }
 ];
 const STITCH_SPACING = 16;
 const FIRST_STITCH_OFFSET = 8;
@@ -18,10 +24,19 @@ let cloths = [];
 let activeCloth = null;
 let progressLabel;
 let completedCount = 0;
+let clothTextures = {};
+
+function preload() {
+  clothTextures = {
+    pink: loadImage("assets/index/pink_fabric.png"),
+    orange: loadImage("assets/index/orange_fabric.png")
+  };
+}
 
 class SewingCloth {
   constructor(config, index) {
     this.config = config;
+    this.texture = clothTextures[config.texture];
     this.index = index;
     this.progress = 0;
     this.dragging = false;
@@ -41,7 +56,7 @@ class SewingCloth {
       bottom: height * 0.62
     };
     const gap = compact ? 24 : 34;
-    const rawWidth = width * this.config.width;
+    const rawWidth = width * this.config.width * (compact ? 1.5 : 1);
     let maxWidth;
     let maxHeight;
 
@@ -75,6 +90,12 @@ class SewingCloth {
     this.w = max(90, min(rawWidth, maxWidth, maxHeight / this.config.aspect, compact ? 180 : 320));
     this.h = this.w * this.config.aspect;
     this.angle = this.config.angle;
+    if (!compact && this.index < 2) {
+      const rotatedHalfWidth = (abs(cos(this.angle)) * this.w + abs(sin(this.angle)) * this.h) / 2;
+      this.x = this.index === 0
+        ? max(this.x, rotatedHalfWidth + 30)
+        : min(this.x, width - rotatedHalfWidth - 30);
+    }
     this.rebuildPath();
 
     if (!this.dragging) {
@@ -213,24 +234,30 @@ class SewingCloth {
     push();
     translate(this.x, this.y);
     rotate(this.angle);
-    noStroke();
     drawingContext.shadowColor = "rgba(96, 59, 39, 0.2)";
     drawingContext.shadowBlur = 18;
     drawingContext.shadowOffsetY = 9;
-    fill(this.config.color);
-    rectMode(CENTER);
-    rect(0, 0, this.w, this.h, 13);
+    if (this.texture) {
+      const crop = this.config.crop;
+      imageMode(CENTER);
+      image(
+        this.texture,
+        0,
+        0,
+        this.w,
+        this.h,
+        crop.x,
+        crop.y,
+        crop.width,
+        crop.height
+      );
+    } else {
+      noStroke();
+      fill(this.config.color);
+      rectMode(CENTER);
+      rect(0, 0, this.w, this.h, 13);
+    }
     drawingContext.shadowColor = "transparent";
-
-    // Subtle woven lines make the placeholders read more like fabric.
-    stroke(255, 255, 255, 45);
-    strokeWeight(1);
-    for (let x = -this.w / 2 + 8; x < this.w / 2; x += 10) {
-      line(x, -this.h / 2 + 4, x, this.h / 2 - 4);
-    }
-    for (let y = -this.h / 2 + 8; y < this.h / 2; y += 10) {
-      line(-this.w / 2 + 4, y, this.w / 2 - 4, y);
-    }
     pop();
   }
 

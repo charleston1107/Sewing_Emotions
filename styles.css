@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Ramidots";
+  src: url("assets/fonts/Ramidots.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ramidots";
+  src: url("assets/fonts/Ramidots Italic.otf") format("opentype");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   --page-bg-start: #F9E2AC;
   --page-bg-end: #F2D2D5;
@@ -271,10 +287,57 @@ button {
   padding: 32px;
 }
 
-.home-sewing-layer {
+.home-decor-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-decor-layer img {
+  position: absolute;
+  display: block;
+  max-width: none;
+}
+
+.home-decor-circle-one {
+  top: 0;
+  left: 0;
+  height: 33.333vh;
+}
+
+.home-decor-circle-two {
+  right: 0;
+  bottom: 0;
+  height: 21.466vh;
+}
+
+.home-decor-scissors {
+  bottom: 0;
+  left: 50%;
+  height: 20.332vh;
+  transform: translateX(-50%);
+}
+
+.home-decor-button-white {
+  bottom: 9vh;
+  left: 22vw;
+  height: 12vh;
+  transform: rotate(-9deg);
+}
+
+.home-decor-button-orange {
+  top: 13vh;
+  right: 22vw;
+  height: 10vh;
+  transform: rotate(11deg);
+}
+
+.home-sewing-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   overflow: hidden;
   touch-action: none;
 }
@@ -288,7 +351,7 @@ button {
 .character-field {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   overflow: hidden;
   pointer-events: none;
 }
@@ -390,7 +453,7 @@ button {
 
 .title-button {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: grid;
   place-items: center;
   width: min(78vw, 520px);
@@ -419,8 +482,9 @@ button {
 
 .title-button span {
   position: relative;
+  font-family: "Ramidots", "Caveat", cursive;
   font-size: clamp(3.8rem, 11vw, 7.8rem);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 0.9;
 }
 
