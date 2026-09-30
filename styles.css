@@ -712,7 +712,126 @@ button {
   width: 100vw;
   min-height: 100vh;
   padding: 0;
-  --editor-lift: -50px;
+  --editor-progress-circle-size: 24px;
+  --editor-progress-item-width: 64px;
+  --editor-progress-spacing: clamp(24px, 4vw, 52px);
+  --editor-progress-active-color: var(--brown);
+  --editor-progress-inactive-color: rgba(96, 59, 39, 0.16);
+  --editor-progress-label-size: clamp(0.68rem, 0.85vw, 0.8rem);
+  --editor-progress-top: 18px;
+  --editor-progress-block-height: 52px;
+  --editor-progress-frame-gap: 22px;
+  --editor-bottom-room: 108px;
+  --editor-frame-top: calc(
+    var(--editor-progress-top)
+    + var(--editor-progress-block-height)
+    + var(--editor-progress-frame-gap)
+  );
+}
+
+.editor-progress {
+  position: absolute;
+  top: var(--editor-progress-top);
+  left: 50%;
+  z-index: 12;
+  height: var(--editor-progress-block-height);
+  font-family: "Instrument Sans", sans-serif;
+  transform: translateX(-50%);
+  --editor-progress-fill: 0%;
+}
+
+.editor-progress[data-step="2"] {
+  --editor-progress-fill: 33.333%;
+}
+
+.editor-progress[data-step="3"] {
+  --editor-progress-fill: 66.667%;
+}
+
+.editor-progress[data-step="4"] {
+  --editor-progress-fill: 100%;
+}
+
+.editor-progress-list {
+  position: relative;
+  display: flex;
+  gap: var(--editor-progress-spacing);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editor-progress-list::before {
+  position: absolute;
+  top: calc(var(--editor-progress-circle-size) / 2 - 1px);
+  right: calc(var(--editor-progress-item-width) / 2);
+  left: calc(var(--editor-progress-item-width) / 2);
+  z-index: 0;
+  height: 2px;
+  content: "";
+  background: linear-gradient(
+    to right,
+    var(--editor-progress-active-color) 0 var(--editor-progress-fill),
+    var(--editor-progress-inactive-color) var(--editor-progress-fill) 100%
+  );
+}
+
+.editor-progress-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: var(--editor-progress-circle-size) auto;
+  gap: 6px;
+  justify-items: center;
+  width: var(--editor-progress-item-width);
+  color: rgba(96, 59, 39, 0.38);
+}
+
+.editor-progress-dot {
+  display: grid;
+  place-items: center;
+  width: var(--editor-progress-circle-size);
+  aspect-ratio: 1;
+  border: 2px solid var(--editor-progress-inactive-color);
+  border-radius: 50%;
+  color: rgba(96, 59, 39, 0.46);
+  font-size: var(--editor-progress-label-size);
+  font-weight: 700;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.68);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.editor-progress-label {
+  font-size: var(--editor-progress-label-size);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.editor-progress[data-step="1"] .editor-progress-step:nth-child(1),
+.editor-progress[data-step="2"] .editor-progress-step:nth-child(-n + 2),
+.editor-progress[data-step="3"] .editor-progress-step:nth-child(-n + 3),
+.editor-progress[data-step="4"] .editor-progress-step {
+  color: var(--editor-progress-active-color);
+}
+
+.editor-progress[data-step="1"] .editor-progress-step:nth-child(1) .editor-progress-dot,
+.editor-progress[data-step="2"] .editor-progress-step:nth-child(-n + 2) .editor-progress-dot,
+.editor-progress[data-step="3"] .editor-progress-step:nth-child(-n + 3) .editor-progress-dot,
+.editor-progress[data-step="4"] .editor-progress-dot {
+  border-color: var(--editor-progress-active-color);
+  color: #FFFFFF;
+  background: var(--editor-progress-active-color);
+}
+
+.editor-progress-step[aria-current="step"] .editor-progress-dot {
+  box-shadow: 0 0 0 4px rgba(96, 59, 39, 0.12);
+  transform: scale(1.08);
+}
+
+.editor-progress-step[aria-current="step"] .editor-progress-label {
+  font-weight: 700;
 }
 
 .editor-side-panel {
@@ -722,8 +841,9 @@ button {
   gap: 10px;
   justify-self: center;
   width: 15vw;
-  height: 80vh;
-  transform: translateY(var(--editor-lift));
+  height: min(80vh, calc(100vh - var(--editor-frame-top) - var(--editor-bottom-room)));
+  margin-top: var(--editor-frame-top);
+  align-self: start;
 }
 
 .instruction-cloud {
@@ -908,8 +1028,9 @@ button {
   position: relative;
   justify-self: center;
   width: 60vw;
-  height: 80vh;
-  transform: translateY(var(--editor-lift));
+  height: min(80vh, calc(100vh - var(--editor-frame-top) - var(--editor-bottom-room)));
+  margin-top: var(--editor-frame-top);
+  align-self: start;
   border-radius: 7px;
   background:
     linear-gradient(rgba(96, 59, 39, 0.05) 1px, transparent 1px),
@@ -918,6 +1039,19 @@ button {
   background-size: 28px 28px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38), 0 24px 45px rgba(96, 59, 39, 0.1);
   overflow: hidden;
+}
+
+@media (max-width: 560px) {
+  .editor-stage {
+    --editor-progress-circle-size: 20px;
+    --editor-progress-item-width: 54px;
+    --editor-progress-spacing: clamp(12px, 3vw, 22px);
+    --editor-progress-label-size: 0.66rem;
+    --editor-progress-top: 58px;
+    --editor-progress-block-height: 46px;
+    --editor-progress-frame-gap: 18px;
+    --editor-bottom-room: 104px;
+  }
 }
 
 .editor-surface {
