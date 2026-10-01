@@ -4,7 +4,6 @@ const libraryGrid = document.querySelector(".library-card-grid");
 const libraryStatus = document.querySelector(".library-status");
 const libraryEmptyState = document.querySelector(".library-empty-state");
 const libraryDetailName = document.querySelector(".library-detail-name");
-const libraryGeneratedFrame = document.querySelector(".character-generated-frame");
 const libraryDesignSurface = document.querySelector(".character-design-surface");
 const libraryBubble = document.querySelector(".character-chat-bubble p");
 const libraryForm = document.querySelector(".character-input-bar");
@@ -41,6 +40,7 @@ async function initializeCollection() {
 
 async function initializeCharacterDetail(characterId) {
   showLibraryView("detail");
+  resizeLibraryInput();
   setChatEnabled(false);
 
   try {
@@ -168,16 +168,7 @@ function renderLoginRequired() {
 
 function renderCharacterDetail() {
   libraryDetailName.textContent = character.name || "My emotion";
-  libraryGeneratedFrame.innerHTML = "";
   renderCharacterDesign(libraryDesignSurface, character.designChoices?.composition);
-
-  if (character.imageUrl) {
-    const image = document.createElement("img");
-    image.className = "character-main-image";
-    image.src = character.imageUrl;
-    image.alt = `${character.name || "Saved"} emotion plushie`;
-    libraryGeneratedFrame.appendChild(image);
-  }
 
   const lastAssistantMessage = character.messages
     .filter((message) => message.role === "assistant")
@@ -210,6 +201,26 @@ function formatLibraryDate(value) {
 function setChatEnabled(enabled) {
   libraryInput.disabled = !enabled;
   librarySendButton.disabled = !enabled;
+}
+
+libraryInput.addEventListener("input", resizeLibraryInput);
+libraryInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    libraryForm.requestSubmit();
+  }
+});
+
+function resizeLibraryInput() {
+  const styles = window.getComputedStyle(libraryInput);
+  const lineHeight = Number.parseFloat(styles.lineHeight) || 22;
+  const verticalPadding = Number.parseFloat(styles.paddingTop) + Number.parseFloat(styles.paddingBottom);
+  const maxHeight = (lineHeight * 3) + verticalPadding;
+
+  libraryInput.style.height = "auto";
+  const nextHeight = Math.min(libraryInput.scrollHeight, maxHeight);
+  libraryInput.style.height = `${nextHeight}px`;
+  libraryInput.style.overflowY = libraryInput.scrollHeight > maxHeight ? "auto" : "hidden";
 }
 
 libraryGrid.addEventListener("click", (event) => {
@@ -278,6 +289,7 @@ libraryForm.addEventListener("submit", async (event) => {
   }
 
   libraryInput.value = "";
+  resizeLibraryInput();
   character.userInputs.push(userMessage);
   character.messages.push({
     id: crypto.randomUUID(),
