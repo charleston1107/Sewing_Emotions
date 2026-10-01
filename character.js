@@ -1,4 +1,3 @@
-const generatedFrame = document.querySelector(".character-generated-frame");
 const designSurface = document.querySelector(".character-design-surface");
 const chatBubble = document.querySelector(".character-chat-bubble p");
 const inputForm = document.querySelector(".character-input-bar");
@@ -17,6 +16,7 @@ if (!Array.isArray(character.designChoices?.composition?.parts)) {
 }
 
 renderCharacterVisuals();
+resizeTextInput();
 const openingReflectionPromise = prepareOpeningReflection();
 
 if (new URLSearchParams(window.location.search).get("save") === "1") {
@@ -25,21 +25,17 @@ if (new URLSearchParams(window.location.search).get("save") === "1") {
 }
 
 function renderCharacterVisuals() {
-  generatedFrame.innerHTML = "";
-
   const composition = character.designChoices?.composition || loadComposition();
   renderCharacterDesign(designSurface, composition);
-
-  if (!character.imageUrl) {
-    return;
-  }
-
-  const image = document.createElement("img");
-  image.className = "character-main-image";
-  image.src = character.imageUrl;
-  image.alt = "Generated emotion plushie";
-  generatedFrame.appendChild(image);
 }
+
+textInput.addEventListener("input", resizeTextInput);
+textInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    inputForm.requestSubmit();
+  }
+});
 
 inputForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -49,6 +45,7 @@ inputForm.addEventListener("submit", async (event) => {
   }
 
   textInput.value = "";
+  resizeTextInput();
   character.userInputs.push(userMessage);
   character.messages.push({ id: crypto.randomUUID(), role: "user", content: userMessage, at: new Date().toISOString() });
   chatBubble.textContent = "I'm listening...";
@@ -80,6 +77,18 @@ inputForm.addEventListener("submit", async (event) => {
 
   saveCurrentCharacter(character);
 });
+
+function resizeTextInput() {
+  const styles = window.getComputedStyle(textInput);
+  const lineHeight = Number.parseFloat(styles.lineHeight) || 22;
+  const verticalPadding = Number.parseFloat(styles.paddingTop) + Number.parseFloat(styles.paddingBottom);
+  const maxHeight = (lineHeight * 3) + verticalPadding;
+
+  textInput.style.height = "auto";
+  const nextHeight = Math.min(textInput.scrollHeight, maxHeight);
+  textInput.style.height = `${nextHeight}px`;
+  textInput.style.overflowY = textInput.scrollHeight > maxHeight ? "auto" : "hidden";
+}
 
 finishButton.addEventListener("click", finishCharacter);
 
