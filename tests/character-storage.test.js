@@ -7,17 +7,24 @@ const savedMessages = new Map();
 const uploadedImages = new Map();
 let currentUser = user;
 let localCharacter;
+let localSaveCount = 0;
+let authError = null;
+let uploadError = null;
+let characterUpsertError = null;
 
 const client = {
   auth: {
     async getUser() {
-      return { data: { user: currentUser }, error: null };
+      return { data: { user: currentUser }, error: authError };
     }
   },
   storage: {
     from() {
       return {
         async upload(path, blob) {
+          if (uploadError) {
+            return { error: uploadError };
+          }
           uploadedImages.set(path, blob);
           return { error: null };
         },
@@ -35,6 +42,9 @@ const client = {
     return {
       async upsert(rows) {
         if (table === "characters") {
+          if (characterUpsertError) {
+            return { error: characterUpsertError };
+          }
           savedCharacters.set(rows.id, rows);
         } else {
           rows.forEach((row) => {
@@ -94,6 +104,7 @@ function makeQuery(table, operation, values = {}) {
 global.window = global;
 global.getSupabaseClient = async () => client;
 global.saveCurrentCharacter = (character) => {
+  localSaveCount += 1;
   localCharacter = structuredClone(character);
 };
 global.saveCharacterToLibrary = global.saveCurrentCharacter;
@@ -101,6 +112,7 @@ global.saveCharacterToLibrary = global.saveCurrentCharacter;
 require("../character-storage.js");
 
 test("a retry updates one cloud character without duplicating messages", async () => {
+  localSaveCount = 0;
   const character = {
     id: "emotion-local",
     name: "Cloudy",
@@ -122,7 +134,8 @@ test("a retry updates one cloud character without duplicating messages", async (
   assert.equal(savedCharacters.size, 1);
   assert.equal(savedMessages.size, 2);
   assert.equal(uploadedImages.size, 1);
-  assert.equal(localCharacter.remote.characterId, first.characterId);
+  assert.equal(character.remote.characterId, first.characterId);
+  assert.equal(localSaveCount, 0);
 });
 
 test("a guest is sent to login without writing cloud data", async () => {
@@ -135,6 +148,77 @@ test("a guest is sent to login without writing cloud data", async () => {
   assert.equal(result.requiresLogin, true);
   assert.equal(savedCharacters.size, beforeCharacters);
   assert.equal(savedMessages.size, beforeMessages);
+});
+
+test("a missing Supabase auth session is treated as signed out", async () => {
+  currentUser = null;
+  authError = Object.assign(new Error("Auth session missing!"), {
+    name: "AuthSessionMissingError"
+  });
+
+  const result = await window.saveCharacterToAccount({ messages: [] });
+
+  assert.equal(result.requiresLogin, true);
+  authError = null;
+});
+
+test("account saving does not write the base64 character back to local storage", async () => {
+  currentUser = user;
+  const originalSaveCurrentCharacter = global.saveCurrentCharacter;
+  const originalSaveCharacterToLibrary = global.saveCharacterToLibrary;
+  global.saveCurrentCharacter = () => {
+    throw new Error("QuotaExceededError");
+  };
+  global.saveCharacterToLibrary = global.saveCurrentCharacter;
+
+  const result = await window.saveCharacterToAccount({
+    name: "Storage-safe",
+    imageUrl: "data:image/png;base64,aGVsbG8=",
+    messages: []
+  });
+
+  assert.equal(result.requiresLogin, false);
+  savedCharacters.delete(result.characterId);
+  uploadedImages.delete(`${user.id}/${result.characterId}/character.png`);
+  global.saveCurrentCharacter = originalSaveCurrentCharacter;
+  global.saveCharacterToLibrary = originalSaveCharacterToLibrary;
+});
+
+test("an image upload failure leaves the local draft untouched", async () => {
+  currentUser = user;
+  const draftBefore = structuredClone(localCharacter);
+  const charactersBefore = savedCharacters.size;
+  uploadError = new Error("Image upload failed");
+
+  await assert.rejects(() => window.saveCharacterToAccount({
+    imageUrl: "data:image/png;base64,aGVsbG8=",
+    messages: []
+  }), /Image upload failed/);
+
+  assert.deepEqual(localCharacter, draftBefore);
+  assert.equal(savedCharacters.size, charactersBefore);
+  uploadError = null;
+});
+
+test("a character-row failure after upload leaves the local draft untouched", async () => {
+  currentUser = user;
+  const draftBefore = structuredClone(localCharacter);
+  const charactersBefore = savedCharacters.size;
+  const uploadsBefore = uploadedImages.size;
+  characterUpsertError = new Error("Character save failed");
+
+  const failedCharacter = {
+    imageUrl: "data:image/png;base64,aGVsbG8=",
+    messages: []
+  };
+
+  await assert.rejects(() => window.saveCharacterToAccount(failedCharacter), /Character save failed/);
+
+  assert.deepEqual(localCharacter, draftBefore);
+  assert.equal(savedCharacters.size, charactersBefore);
+  assert.equal(uploadedImages.size, uploadsBefore + 1);
+  uploadedImages.delete(`${user.id}/${failedCharacter.remote.characterId}/character.png`);
+  characterUpsertError = null;
 });
 
 test("the collection lists, renames, and deletes only the signed-in user's character", async () => {

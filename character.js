@@ -88,12 +88,11 @@ async function finishCharacter() {
     return;
   }
 
-  saveCharacterToLibrary(character);
-  savingCharacter = true;
-  finishButton.disabled = true;
-  finishButton.textContent = "Saving...";
-
   try {
+    savingCharacter = true;
+    finishButton.disabled = true;
+    finishButton.textContent = "Saving...";
+
     const result = await saveCharacterToAccount(character);
 
     if (result.requiresLogin) {

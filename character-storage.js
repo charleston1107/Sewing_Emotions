@@ -5,6 +5,9 @@ async function getSignedInUser() {
   const { data, error } = await client.auth.getUser();
 
   if (error) {
+    if (isMissingAuthSessionError(error)) {
+      return null;
+    }
     throw error;
   }
 
@@ -32,8 +35,6 @@ async function saveCharacterToAccount(character) {
   const characterId = character.remote.characterId;
   let imagePath = character.remote.imagePath || "";
 
-  saveCurrentCharacter(character);
-
   if (character.imageUrl?.startsWith("data:image/")) {
     const image = dataUrlToBlob(character.imageUrl);
     const extension = imageExtension(image.type);
@@ -52,7 +53,6 @@ async function saveCharacterToAccount(character) {
     }
 
     character.remote.imagePath = imagePath;
-    saveCurrentCharacter(character);
   }
 
   const characterRow = {
@@ -99,13 +99,17 @@ async function saveCharacterToAccount(character) {
   }
 
   character.remote.savedAt = new Date().toISOString();
-  saveCurrentCharacter(character);
-  saveCharacterToLibrary(character);
 
   return {
     requiresLogin: false,
     characterId
   };
+}
+
+function isMissingAuthSessionError(error) {
+  return error?.name === "AuthSessionMissingError"
+    || error?.code === "session_not_found"
+    || /auth session missing/i.test(String(error?.message || ""));
 }
 
 async function loadCharacterFromAccount(characterId) {
