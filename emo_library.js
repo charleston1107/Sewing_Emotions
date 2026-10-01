@@ -1,8 +1,20 @@
 const collectionView = document.querySelector('[data-library-view="collection"]');
-const detailView = document.querySelector('[data-library-view="detail"]');
+const memoryView = document.querySelector('[data-library-view="memory"]');
+const chatView = document.querySelector('[data-library-view="chat"]');
 const libraryGrid = document.querySelector(".library-card-grid");
 const libraryStatus = document.querySelector(".library-status");
 const libraryEmptyState = document.querySelector(".library-empty-state");
+const memoryGeneratedImage = document.querySelector(".memory-generated-image");
+const memoryGeneratedImageFallback = document.querySelector(".memory-generated-image-fallback");
+const memoryNameDisplay = document.querySelector(".memory-name-display");
+const memoryNameForm = document.querySelector(".memory-name-form");
+const memoryNameMessage = document.querySelector(".memory-name-message");
+const memoryCreatedAt = document.querySelector(".memory-created-at");
+const memoryEmotions = document.querySelector(".memory-emotions");
+const memoryDesignSurface = document.querySelector(".memory-design-surface");
+const memoryTalkButton = document.querySelector(".memory-talk-button");
+const memoryTranscript = document.querySelector(".memory-transcript");
+const memoryViewStatus = document.querySelector(".memory-view-status");
 const libraryDetailName = document.querySelector(".library-detail-name");
 const libraryDesignSurface = document.querySelector(".character-design-surface");
 const libraryBubble = document.querySelector(".character-chat-bubble p");
@@ -14,9 +26,11 @@ let character = null;
 let libraryReady = false;
 let collectionCharacters = [];
 
-const requestedCharacterId = new URLSearchParams(window.location.search).get("character") || "";
+const libraryParams = new URLSearchParams(window.location.search);
+const requestedCharacterId = libraryParams.get("character") || "";
+const requestedCharacterView = libraryParams.get("view") === "chat" ? "chat" : "memory";
 const libraryInitialization = requestedCharacterId
-  ? initializeCharacterDetail(requestedCharacterId)
+  ? initializeCharacterDetail(requestedCharacterId, requestedCharacterView)
   : initializeCollection();
 
 async function initializeCollection() {
@@ -38,33 +52,52 @@ async function initializeCollection() {
   }
 }
 
-async function initializeCharacterDetail(characterId) {
-  showLibraryView("detail");
-  resizeLibraryInput();
-  setChatEnabled(false);
+async function initializeCharacterDetail(characterId, view) {
+  showLibraryView(view);
+  if (view === "chat") {
+    resizeLibraryInput();
+    setChatEnabled(false);
+  } else {
+    memoryViewStatus.textContent = "Opening this emotion box...";
+  }
 
   try {
     character = await loadCharacterFromAccount(characterId);
 
     if (!character) {
-      libraryBubble.textContent = "This character was not found, or you need to log in to open it.";
+      const message = "This character was not found, or you need to log in to open it.";
+      if (view === "chat") {
+        libraryBubble.textContent = message;
+      } else {
+        memoryViewStatus.textContent = message;
+      }
       return;
     }
 
     saveCurrentCharacter(character);
     saveCharacterToLibrary(character);
-    renderCharacterDetail();
-    libraryReady = true;
-    setChatEnabled(true);
+    if (view === "chat") {
+      renderCharacterDetail();
+      libraryReady = true;
+      setChatEnabled(true);
+    } else {
+      renderMemoryDetail();
+      memoryViewStatus.textContent = "";
+    }
   } catch (error) {
-    libraryBubble.textContent = `This character could not load. ${error.message}`;
+    const message = `This character could not load. ${error.message}`;
+    if (view === "chat") {
+      libraryBubble.textContent = message;
+    } else {
+      memoryViewStatus.textContent = message;
+    }
   }
 }
 
 function showLibraryView(view) {
-  const showingCollection = view === "collection";
-  collectionView.hidden = !showingCollection;
-  detailView.hidden = showingCollection;
+  collectionView.hidden = view !== "collection";
+  memoryView.hidden = view !== "memory";
+  chatView.hidden = view !== "chat";
 }
 
 function renderCollectionCards() {
@@ -176,6 +209,96 @@ function renderCharacterDetail() {
   libraryBubble.textContent = lastAssistantMessage?.content || "I'm here with the feelings you gave me.";
 }
 
+function renderMemoryDetail() {
+  renderMemoryName();
+
+  if (character.imageUrl) {
+    memoryGeneratedImage.src = character.imageUrl;
+    memoryGeneratedImage.alt = `${character.name || "Saved"} generated emotion character`;
+    memoryGeneratedImage.hidden = false;
+    memoryGeneratedImageFallback.hidden = true;
+  } else {
+    memoryGeneratedImage.removeAttribute("src");
+    memoryGeneratedImage.alt = "";
+    memoryGeneratedImage.hidden = true;
+    memoryGeneratedImageFallback.hidden = false;
+  }
+
+  const createdAt = new Date(character.createdAt);
+  memoryCreatedAt.dateTime = Number.isNaN(createdAt.getTime()) ? "" : createdAt.toISOString();
+  memoryCreatedAt.textContent = formatMemoryDate(character.createdAt);
+
+  const rankedEmotions = Array.isArray(character.emotionHints?.ranked)
+    ? character.emotionHints.ranked
+      .map((hint) => String(hint?.emotion || "").trim())
+      .filter(Boolean)
+      .slice(0, 4)
+    : [];
+  memoryEmotions.textContent = rankedEmotions.length ? rankedEmotions.join(", ") : "—";
+
+  renderCharacterDesign(memoryDesignSurface, character.designChoices?.composition);
+  memoryTalkButton.href = `emo_library.html?character=${encodeURIComponent(character.id)}&view=chat`;
+  renderMemoryTranscript();
+}
+
+function renderMemoryName() {
+  const name = String(character?.name || "").trim();
+  const unnamed = isUnnamedCharacterName(name);
+  memoryNameDisplay.textContent = unnamed ? "" : name;
+  memoryNameDisplay.classList.toggle("is-unnamed", unnamed);
+  memoryNameDisplay.setAttribute(
+    "aria-label",
+    unnamed ? "Unnamed emotion. Double-click to add a name." : `${name}. Double-click to rename.`
+  );
+  memoryNameForm.elements.characterName.value = unnamed ? "" : name;
+}
+
+function renderMemoryTranscript() {
+  memoryTranscript.innerHTML = "";
+  const messages = Array.isArray(character.messages) ? character.messages : [];
+
+  if (messages.length === 0) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "memory-transcript-empty";
+    emptyMessage.textContent = "No saved conversation yet.";
+    memoryTranscript.appendChild(emptyMessage);
+    return;
+  }
+
+  messages.forEach((message) => {
+    const entry = document.createElement("article");
+    const isAssistant = message.role === "assistant";
+    entry.className = `memory-message memory-message-${isAssistant ? "emotion" : "user"}`;
+
+    const role = document.createElement("p");
+    role.className = "memory-message-role";
+    role.textContent = isAssistant ? "Emotion" : "You";
+
+    const content = document.createElement("p");
+    content.className = "memory-message-content";
+    content.textContent = String(message.content || "");
+
+    entry.append(role, content);
+    memoryTranscript.appendChild(entry);
+  });
+}
+
+function formatMemoryDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(date);
+}
+
+function isUnnamedCharacterName(name) {
+  return !name || ["my emotion", "unnamed", "untitled", "untitled emotion"].includes(name.toLowerCase());
+}
+
 function emotionDescription(emotionHints) {
   const ranked = Array.isArray(emotionHints?.ranked) ? emotionHints.ranked : [];
   if (!ranked.length) {
@@ -221,6 +344,63 @@ function resizeLibraryInput() {
   const nextHeight = Math.min(libraryInput.scrollHeight, maxHeight);
   libraryInput.style.height = `${nextHeight}px`;
   libraryInput.style.overflowY = libraryInput.scrollHeight > maxHeight ? "auto" : "hidden";
+}
+
+memoryNameDisplay.addEventListener("dblclick", () => {
+  if (character) {
+    setMemoryNameEditing(true);
+  }
+});
+
+memoryNameForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const input = memoryNameForm.elements.characterName;
+  const nextName = input.value.trim();
+  if (!character || !nextName) {
+    memoryNameMessage.textContent = "Please give this emotion a name.";
+    return;
+  }
+
+  const buttons = memoryNameForm.querySelectorAll("button");
+  buttons.forEach((button) => {
+    button.disabled = true;
+  });
+  memoryNameMessage.textContent = "Saving name...";
+
+  try {
+    const result = await renameCharacterInAccount(character.id, nextName);
+    try {
+      renameCharacterInLocalLibrary(character.id, result.name);
+    } catch (localError) {
+      console.warn("The renamed character could not be refreshed in the local cache.", localError);
+    }
+    character.name = result.name;
+    renderMemoryName();
+    setMemoryNameEditing(false);
+  } catch (error) {
+    memoryNameMessage.textContent = error.message;
+  } finally {
+    buttons.forEach((button) => {
+      button.disabled = false;
+    });
+  }
+});
+
+memoryNameForm.querySelector('[data-memory-action="cancel-name"]').addEventListener("click", () => {
+  renderMemoryName();
+  setMemoryNameEditing(false);
+});
+
+function setMemoryNameEditing(editing) {
+  memoryNameDisplay.hidden = editing;
+  memoryNameForm.hidden = !editing;
+  memoryNameMessage.textContent = "";
+
+  if (editing) {
+    const input = memoryNameForm.elements.characterName;
+    input.focus();
+    input.select();
+  }
 }
 
 libraryGrid.addEventListener("click", (event) => {

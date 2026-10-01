@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=29">
+  <link rel="stylesheet" href="styles.css?v=30">
 </head>
 <body class="editor-page library-page">
   <a class="last-step-button" href="index.html">Return Home</a>
@@ -31,7 +31,62 @@
       </section>
     </section>
 
-    <section class="character-stage library-character-stage" data-library-view="detail" aria-label="Emotion character chat" hidden>
+    <section class="library-memory-view" data-library-view="memory" aria-labelledby="memory-notebook-title" hidden>
+      <a class="library-back-button" href="emo_library.html">All Characters</a>
+      <div class="library-memory-layout">
+        <div class="library-memory-left">
+          <article class="memory-identity-card" aria-label="Emotion identity">
+            <div class="memory-generated-image-frame">
+              <img class="memory-generated-image" alt="" hidden>
+              <p class="memory-generated-image-fallback">A visual memory rests here</p>
+            </div>
+            <dl class="memory-identity-details">
+              <div class="memory-identity-field memory-name-field">
+                <dt>Name:</dt>
+                <dd>
+                  <button class="memory-name-display" type="button" title="Double-click to rename"></button>
+                  <form class="memory-name-form" hidden>
+                    <input name="characterName" maxlength="100" required aria-label="New emotion name">
+                    <div class="memory-name-actions">
+                      <button type="submit">Save</button>
+                      <button type="button" data-memory-action="cancel-name">Cancel</button>
+                    </div>
+                  </form>
+                  <p class="memory-name-message" aria-live="polite"></p>
+                </dd>
+              </div>
+              <div class="memory-identity-field">
+                <dt>Created At:</dt>
+                <dd><time class="memory-created-at"></time></dd>
+              </div>
+              <div class="memory-identity-field">
+                <dt>Emotions Carrying:</dt>
+                <dd class="memory-emotions">—</dd>
+              </div>
+            </dl>
+          </article>
+
+          <section class="memory-talk-panel" aria-label="Original character and conversation link">
+            <div class="memory-design-card" aria-label="Your original geometric emotion character">
+              <div class="memory-design-surface"></div>
+            </div>
+            <a class="memory-talk-button" href="emo_library.html">Talk to Me</a>
+          </section>
+          <p class="memory-view-status" aria-live="polite"></p>
+        </div>
+
+        <section class="memory-notebook" aria-labelledby="memory-notebook-title">
+          <div class="memory-notebook-binding" aria-hidden="true"></div>
+          <header class="memory-notebook-header">
+            <p>What we have said together</p>
+            <h1 id="memory-notebook-title">Conversation Memories</h1>
+          </header>
+          <div class="memory-transcript" aria-label="Saved conversation history"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="character-stage library-character-stage" data-library-view="chat" aria-label="Emotion character chat" hidden>
       <a class="library-back-button" href="emo_library.html">All Characters</a>
       <h1 class="library-detail-name"></h1>
       <section class="character-design-frame" aria-label="Your original emotion character design">
@@ -65,7 +120,7 @@
   <script src="shared.js?v=27"></script>
   <script src="emotion-data.js?v=27"></script>
   <script src="supabase-client.js?v=2"></script>
-  <script src="character-storage.js?v=3"></script>
-  <script src="emo_library.js?v=28"></script>
+  <script src="character-storage.js?v=4"></script>
+  <script src="emo_library.js?v=30"></script>
 </body>
 </html>
