@@ -1,6 +1,18 @@
 const characterField = document.querySelector(".character-field");
 const CHARACTER_DRAG_THRESHOLD = 8;
 
+/*
+ * HOMEPAGE EMOTION CHARACTER BACKUP
+ *
+ * This feature is intentionally paused, but all of its rendering, positioning,
+ * dragging, and archive-link code remains below. Change this flag to `true` to
+ * restore saved emotion characters on the homepage.
+ */
+const HOME_EMOTION_CHARACTERS_ENABLED = false;
+
+characterField.hidden = !HOME_EMOTION_CHARACTERS_ENABLED;
+characterField.setAttribute("aria-hidden", String(!HOME_EMOTION_CHARACTERS_ENABLED));
+
 function seeded(seed) {
   const value = Math.sin(seed * 9283.63) * 10000;
   return value - Math.floor(value);
@@ -219,5 +231,9 @@ async function showSignedInCharacters() {
   }
 }
 
-showSignedInCharacters();
-window.addEventListener("home-sewing-zones-updated", repositionSavedCharacters);
+// Keep initialization disabled with the feature flag so no characters are
+// fetched, rendered, draggable, or linked from the homepage while paused.
+if (HOME_EMOTION_CHARACTERS_ENABLED) {
+  showSignedInCharacters();
+  window.addEventListener("home-sewing-zones-updated", repositionSavedCharacters);
+}
