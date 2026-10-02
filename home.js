@@ -1,5 +1,85 @@
 const characterField = document.querySelector(".character-field");
 const CHARACTER_DRAG_THRESHOLD = 8;
+const homeStage = document.querySelector(".home-stage");
+const draggableHomeDecorations = document.querySelectorAll(
+  ".home-decor-scissors, .home-decor-button-white, .home-decor-button-orange"
+);
+
+function keepHomeDecorationInsideStage(decoration) {
+  if (!decoration.classList.contains("is-home-decor-positioned")) return;
+  const stageRect = homeStage.getBoundingClientRect();
+  const maxLeft = Math.max(8, stageRect.width - decoration.offsetWidth - 8);
+  const maxTop = Math.max(8, stageRect.height - decoration.offsetHeight - 8);
+  const left = Math.min(maxLeft, Math.max(8, decoration.offsetLeft));
+  const top = Math.min(maxTop, Math.max(8, decoration.offsetTop));
+  decoration.style.left = `${left}px`;
+  decoration.style.top = `${top}px`;
+}
+
+function makeHomeDecorationDraggable(decoration) {
+  let drag = null;
+
+  decoration.draggable = false;
+  decoration.addEventListener("dragstart", (event) => event.preventDefault());
+
+  decoration.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.isPrimary === false) return;
+    const rect = decoration.getBoundingClientRect();
+    drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      moving: false
+    };
+    decoration.setPointerCapture(event.pointerId);
+  });
+
+  decoration.addEventListener("pointermove", (event) => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+    if (!drag.moving && distance < CHARACTER_DRAG_THRESHOLD) return;
+
+    const stageRect = homeStage.getBoundingClientRect();
+    if (!drag.moving) {
+      const rect = decoration.getBoundingClientRect();
+      decoration.style.left = `${rect.left - stageRect.left}px`;
+      decoration.style.top = `${rect.top - stageRect.top}px`;
+      decoration.classList.add("is-home-decor-positioned", "is-home-decor-dragging");
+      const positionedRect = decoration.getBoundingClientRect();
+      decoration.style.left = `${decoration.offsetLeft + rect.left - positionedRect.left}px`;
+      decoration.style.top = `${decoration.offsetTop + rect.top - positionedRect.top}px`;
+      drag.moving = true;
+    }
+
+    event.preventDefault();
+    const maxLeft = Math.max(8, stageRect.width - decoration.offsetWidth - 8);
+    const maxTop = Math.max(8, stageRect.height - decoration.offsetHeight - 8);
+    const left = Math.min(maxLeft, Math.max(8, event.clientX - stageRect.left - drag.offsetX));
+    const top = Math.min(maxTop, Math.max(8, event.clientY - stageRect.top - drag.offsetY));
+    decoration.style.left = `${left}px`;
+    decoration.style.top = `${top}px`;
+  });
+
+  const finishDrag = (event) => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    if (decoration.hasPointerCapture(event.pointerId)) {
+      decoration.releasePointerCapture(event.pointerId);
+    }
+    decoration.classList.remove("is-home-decor-dragging");
+    if (drag.moving) keepHomeDecorationInsideStage(decoration);
+    drag = null;
+  };
+
+  decoration.addEventListener("pointerup", finishDrag);
+  decoration.addEventListener("pointercancel", finishDrag);
+}
+
+draggableHomeDecorations.forEach(makeHomeDecorationDraggable);
+window.addEventListener("resize", () => {
+  draggableHomeDecorations.forEach(keepHomeDecorationInsideStage);
+});
 
 /*
  * HOMEPAGE EMOTION CHARACTER BACKUP

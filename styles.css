@@ -312,10 +312,31 @@ button {
   pointer-events: none;
 }
 
-.home-decor-layer img {
+.home-draggable-decor-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-decor-layer img,
+.home-draggable-decor-layer img {
   position: absolute;
   display: block;
   max-width: none;
+}
+
+.home-draggable-decor-layer img {
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: grab;
+}
+
+.home-draggable-decor-layer img.is-home-decor-dragging {
+  cursor: grabbing;
 }
 
 .home-decor-circle-one {
@@ -331,24 +352,37 @@ button {
 }
 
 .home-decor-scissors {
+  --decor-rotation: 0deg;
   bottom: 0;
   left: 50%;
   height: 20.332vh;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(var(--decor-rotation));
 }
 
 .home-decor-button-white {
+  --decor-rotation: -9deg;
   bottom: 9vh;
   left: 22vw;
   height: 12vh;
-  transform: rotate(-9deg);
+  transform: rotate(var(--decor-rotation));
 }
 
 .home-decor-button-orange {
+  --decor-rotation: 11deg;
   top: 13vh;
   right: 22vw;
   height: 10vh;
-  transform: rotate(11deg);
+  transform: rotate(var(--decor-rotation));
+}
+
+.home-draggable-decor-layer img.is-home-decor-positioned {
+  right: auto;
+  bottom: auto;
+  transform: rotate(var(--decor-rotation));
+}
+
+.home-draggable-decor-layer img.is-home-decor-positioned.is-home-decor-dragging {
+  transform: rotate(var(--decor-rotation)) scale(1.035);
 }
 
 .home-sewing-layer {
