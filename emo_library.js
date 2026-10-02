@@ -21,6 +21,8 @@ const libraryBubble = document.querySelector(".character-chat-bubble p");
 const libraryForm = document.querySelector(".character-input-bar");
 const libraryInput = document.querySelector(".character-text-input");
 const librarySendButton = document.querySelector(".character-send-button");
+const memoryNavigationButton = document.querySelector('[data-library-nav="memory"]');
+const chatNavigationButton = document.querySelector('[data-library-nav="chat"]');
 
 let character = null;
 let libraryReady = false;
@@ -98,6 +100,12 @@ function showLibraryView(view) {
   collectionView.hidden = view !== "collection";
   memoryView.hidden = view !== "memory";
   chatView.hidden = view !== "chat";
+  memoryNavigationButton.hidden = view !== "memory";
+  chatNavigationButton.hidden = view !== "chat";
+
+  if (view === "chat" && requestedCharacterId) {
+    chatNavigationButton.href = `emo_library.html?character=${encodeURIComponent(requestedCharacterId)}`;
+  }
 }
 
 function renderCollectionCards() {

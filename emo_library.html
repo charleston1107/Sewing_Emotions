@@ -7,11 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=32">
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body class="editor-page library-page">
-  <a class="last-step-button" href="index.html">Return Home</a>
-  <a class="account-entry-link" href="account.html">Account</a>
+  <header class="library-page-navigation" aria-label="Page navigation">
+    <nav class="library-page-navigation-left" aria-label="Library navigation">
+      <a class="library-nav-button" href="index.html">Return Home</a>
+      <a class="library-nav-button" data-library-nav="memory" href="emo_library.html" hidden>All Characters</a>
+      <a class="library-nav-button" data-library-nav="chat" href="emo_library.html" hidden>Return to Archive</a>
+    </nav>
+    <a class="library-nav-button" href="account.html">Account</a>
+  </header>
 
   <main class="library-shell">
     <section class="library-collection-view" data-library-view="collection" aria-labelledby="library-title">
@@ -19,7 +25,6 @@
         <p class="library-eyebrow">Your private collection</p>
         <h1 id="library-title">Emotion Library</h1>
         <p class="library-introduction">Every character remembers the feeling and conversations you made together.</p>
-        <a class="library-create-button" href="welcome_1.html">Create another emotion</a>
       </header>
 
       <p class="library-status" aria-live="polite">Opening your library...</p>
@@ -29,10 +34,12 @@
         <p>Create an emotion character and finish its conversation to save it in this library.</p>
         <a href="welcome_1.html">Create your first character</a>
       </section>
+      <div class="library-create-footer">
+        <a class="library-create-button" href="welcome_1.html">Create another emotion</a>
+      </div>
     </section>
 
     <section class="library-memory-view" data-library-view="memory" aria-labelledby="memory-notebook-title" hidden>
-      <a class="library-back-button" href="emo_library.html">All Characters</a>
       <div class="library-memory-layout">
         <div class="library-memory-left">
           <article class="memory-identity-card" aria-label="Emotion identity">
@@ -87,7 +94,6 @@
     </section>
 
     <section class="character-stage library-character-stage" data-library-view="chat" aria-label="Emotion character chat" hidden>
-      <a class="library-back-button" href="emo_library.html">All Characters</a>
       <h1 class="library-detail-name"></h1>
       <section class="character-design-frame" aria-label="Your original emotion character design">
         <div class="character-design-surface"></div>
@@ -121,6 +127,6 @@
   <script src="emotion-data.js?v=27"></script>
   <script src="supabase-client.js?v=2"></script>
   <script src="character-storage.js?v=4"></script>
-  <script src="emo_library.js?v=30"></script>
+  <script src="emo_library.js?v=31"></script>
 </body>
 </html>
