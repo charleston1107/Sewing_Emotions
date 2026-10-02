@@ -364,10 +364,20 @@ button {
   aspect-ratio: var(--design-aspect, 1.2);
   color: inherit;
   filter: drop-shadow(0 12px 14px rgba(96, 59, 39, 0.13));
+  cursor: grab;
   pointer-events: auto;
+  touch-action: none;
+  user-select: none;
   transform: rotate(var(--tilt));
   animation: characterFloat var(--float-duration) ease-in-out infinite alternate;
   animation-delay: var(--float-delay);
+}
+
+.home-design-character.is-home-dragging {
+  z-index: 8;
+  cursor: grabbing;
+  animation: none;
+  transform: rotate(var(--tilt)) scale(1.035);
 }
 
 .character-design-surface {
@@ -462,22 +472,25 @@ button {
   color: var(--brown);
   text-align: center;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--warm-yellow), var(--warm-pink));
+  background: linear-gradient(135deg, #FCDC82, #FED131);
+  background-position: 0 50%;
+  background-size: 100% 100%;
   border-radius: 44% 56% 62% 38% / 48% 37% 63% 52%;
   box-shadow:
     0 22px 45px rgba(96, 59, 39, 0.16),
     inset 0 0 28px rgba(255, 255, 255, 0.22);
   filter: blur(0.18px);
-  animation: titleFloat 6.5s ease-in-out infinite;
+  transition: box-shadow 240ms ease, filter 240ms ease;
 }
 
-.title-button::before {
-  position: absolute;
-  inset: 8px 12px 12px 8px;
-  content: "";
-  border: 2px solid rgba(255, 255, 255, 0.42);
-  border-radius: 51% 49% 45% 55% / 41% 58% 42% 59%;
-  pointer-events: none;
+.title-button:hover,
+.title-button:focus-visible {
+  background: linear-gradient(90deg, #F7F2DC 0%, #EBEBEB 50%, #F7F2DC 100%);
+  background-size: 200% 100%;
+  box-shadow:
+    0 24px 48px rgba(96, 59, 39, 0.18),
+    inset 0 0 28px rgba(255, 255, 255, 0.3);
+  animation: titleGradientScroll 1.6s linear infinite;
 }
 
 .title-button span {
@@ -2537,6 +2550,16 @@ button {
 
   50% {
     transform: translateY(8px) rotate(0.5deg);
+  }
+}
+
+@keyframes titleGradientScroll {
+  0% {
+    background-position: -100% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
   }
 }
 

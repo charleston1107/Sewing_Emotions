@@ -1,4 +1,5 @@
 const characterField = document.querySelector(".character-field");
+const CHARACTER_DRAG_THRESHOLD = 8;
 
 function seeded(seed) {
   const value = Math.sin(seed * 9283.63) * 10000;
@@ -90,7 +91,89 @@ function moveCharacterAwayFromCloths(link, index, seed) {
 
 function repositionSavedCharacters() {
   document.querySelectorAll(".home-design-character").forEach((link, index) => {
-    moveCharacterAwayFromCloths(link, index, Number(link.dataset.homeSeed));
+    if (link.dataset.userPositioned === "true") {
+      keepCharacterInsideViewport(link);
+    } else {
+      moveCharacterAwayFromCloths(link, index, Number(link.dataset.homeSeed));
+    }
+  });
+}
+
+function keepCharacterInsideViewport(link) {
+  const fieldRect = characterField.getBoundingClientRect();
+  const maxLeft = Math.max(8, fieldRect.width - link.offsetWidth - 8);
+  const maxTop = Math.max(8, fieldRect.height - link.offsetHeight - 8);
+  const left = Math.min(maxLeft, Math.max(8, link.offsetLeft));
+  const top = Math.min(maxTop, Math.max(8, link.offsetTop));
+  link.style.left = `${left}px`;
+  link.style.top = `${top}px`;
+}
+
+function makeCharacterDraggable(link) {
+  let drag = null;
+  let suppressClickUntil = 0;
+
+  link.draggable = false;
+  link.addEventListener("dragstart", (event) => event.preventDefault());
+
+  link.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.isPrimary === false) return;
+    const rect = link.getBoundingClientRect();
+    drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      moving: false
+    };
+    link.setPointerCapture(event.pointerId);
+  });
+
+  link.addEventListener("pointermove", (event) => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+
+    if (!drag.moving && distance < CHARACTER_DRAG_THRESHOLD) return;
+    if (!drag.moving) {
+      const fieldRect = characterField.getBoundingClientRect();
+      const rect = link.getBoundingClientRect();
+      link.style.left = `${rect.left - fieldRect.left}px`;
+      link.style.top = `${rect.top - fieldRect.top}px`;
+      link.classList.add("is-home-dragging");
+      drag.moving = true;
+    }
+
+    event.preventDefault();
+    const fieldRect = characterField.getBoundingClientRect();
+    const maxLeft = Math.max(8, fieldRect.width - link.offsetWidth - 8);
+    const maxTop = Math.max(8, fieldRect.height - link.offsetHeight - 8);
+    const left = Math.min(maxLeft, Math.max(8, event.clientX - fieldRect.left - drag.offsetX));
+    const top = Math.min(maxTop, Math.max(8, event.clientY - fieldRect.top - drag.offsetY));
+    link.style.left = `${left}px`;
+    link.style.top = `${top}px`;
+  });
+
+  const finishDrag = (event, cancelled = false) => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    if (link.hasPointerCapture(event.pointerId)) {
+      link.releasePointerCapture(event.pointerId);
+    }
+    if (drag.moving) {
+      suppressClickUntil = cancelled ? 0 : performance.now() + 500;
+      link.dataset.userPositioned = "true";
+      link.classList.remove("is-home-dragging");
+      keepCharacterInsideViewport(link);
+    }
+    drag = null;
+  };
+
+  link.addEventListener("pointerup", finishDrag);
+  link.addEventListener("pointercancel", (event) => finishDrag(event, true));
+  link.addEventListener("click", (event) => {
+    if (performance.now() > suppressClickUntil) return;
+    event.preventDefault();
+    suppressClickUntil = 0;
   });
 }
 
@@ -114,6 +197,7 @@ function createSavedDesign(character, index) {
   link.style.setProperty("--tilt", `${Math.round(seeded(seed + 4) * 18 - 9)}deg`);
   link.style.setProperty("--float-duration", `${8 + seeded(seed + 8) * 5}s`);
   link.style.setProperty("--float-delay", `${seeded(seed + 11) * -7}s`);
+  makeCharacterDraggable(link);
 
   surface.className = "character-design-surface";
   renderCharacterDesign(surface, composition);

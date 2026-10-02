@@ -74,7 +74,7 @@ class SewingCloth {
       maxWidth = max(120, titleRect.left - gap - 34);
       maxHeight = height * 0.42;
       this.x = maxWidth / 2 + 17;
-      this.y = titleRect.top + (titleRect.bottom - titleRect.top) * 0.48;
+      this.y = height * (2 / 3);
     } else if (this.index === 1) {
       maxWidth = max(120, width - titleRect.right - gap - 34);
       maxHeight = height * 0.42;
