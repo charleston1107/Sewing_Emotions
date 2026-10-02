@@ -14,6 +14,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Avant Garde Normal";
+  src: url("assets/fonts/AVGARDN_2.TTF") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avant Garde Demi";
+  src: url("assets/fonts/AVGARDD_2.TTF") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   --page-bg-start: #F9E2AC;
   --page-bg-end: #F2D2D5;
@@ -38,7 +54,7 @@ body {
   overflow: hidden;
   background: linear-gradient(135deg, var(--page-bg-start), var(--page-bg-end));
   color: var(--brown);
-  font-family: "Ramidots", cursive;
+  font-family: "Avant Garde Normal", "Instrument Sans", sans-serif;
 }
 
 .account-page,
@@ -142,7 +158,7 @@ button {
 .account-intro h1 {
   margin: 0;
   color: var(--brown);
-  font-family: "Ramidots", cursive;
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   font-size: clamp(3.2rem, 10vw, 5.2rem);
   line-height: 0.92;
 }
@@ -547,7 +563,7 @@ button {
 
 .title-button span {
   position: relative;
-  font-family: "Ramidots", cursive;
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   font-size: clamp(3.8rem, 11vw, 7.8rem);
   font-weight: 400;
   line-height: 0.9;
@@ -582,7 +598,7 @@ button {
   width: min(82vw, 760px);
   margin: 0;
   color: var(--brown);
-  font-family: "Ramidots", cursive;
+  font-family: "Avant Garde Normal", "Instrument Sans", sans-serif;
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 500;
   line-height: 1.34;
@@ -659,7 +675,7 @@ button {
   top: 50%;
   width: min(82vw, 760px);
   color: var(--brown);
-  font-family: "Ramidots", cursive;
+  font-family: "Avant Garde Normal", "Instrument Sans", sans-serif;
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 500;
   line-height: 1.35;
@@ -1367,7 +1383,7 @@ button {
   border: 0;
   border-radius: 999px;
   color: var(--brown);
-  font-family: "Ramidots", cursive;
+  font-family: "Avant Garde Normal", "Instrument Sans", sans-serif;
   font-size: clamp(2rem, 4vw, 2.8rem);
   font-weight: 700;
   background: linear-gradient(135deg, var(--warm-yellow), var(--warm-pink));
@@ -1795,6 +1811,7 @@ button {
 .library-collection-header h1 {
   margin: 0;
   color: var(--brown);
+  font-family: "Ramidots", cursive;
   font-size: clamp(4.2rem, 10vw, 7.4rem);
   line-height: 0.9;
 }
@@ -1914,6 +1931,7 @@ button {
 .library-card-copy h2 {
   margin: 0;
   color: var(--brown);
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   font-size: clamp(2rem, 4vw, 2.8rem);
   line-height: 1;
   overflow-wrap: anywhere;
@@ -2015,6 +2033,7 @@ button {
 .library-empty-state h2 {
   margin: 0;
   color: var(--brown);
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   font-size: clamp(2.2rem, 6vw, 3.6rem);
   line-height: 1;
 }
@@ -2059,6 +2078,7 @@ button {
   max-width: min(54vw, 580px);
   margin: 0;
   color: var(--brown);
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   font-size: clamp(2rem, 4.2vw, 3.5rem);
   line-height: 1;
   text-align: center;
@@ -2179,6 +2199,7 @@ button {
   outline: none;
   color: var(--brown);
   font: inherit;
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2209,6 +2230,7 @@ button {
   outline: none;
   color: var(--brown);
   font: inherit;
+  font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -2362,6 +2384,7 @@ button {
 .memory-notebook-header h1 {
   margin: 0;
   color: var(--brown);
+  font-family: "Ramidots", cursive;
   font-size: clamp(2.3rem, 4.6vw, 4.2rem);
   line-height: 0.94;
 }
