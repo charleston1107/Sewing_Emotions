@@ -61,7 +61,7 @@ body {
 .welcome-page,
 .character-page,
 .sewing-page {
-  background: linear-gradient(135deg, #FFFFF2, #FFF6DB);
+  background: linear-gradient(135deg, var(--page-bg-start), var(--page-bg-end));
 }
 
 a,
