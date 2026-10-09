@@ -13,6 +13,20 @@ const DEFAULT_GEMINI_IMAGE_MODELS = [
 ];
 const GEMINI_IMAGE_MODELS = getGeminiImageModels();
 const MAX_JSON_BYTES = 16 * 1024 * 1024;
+const GENERATED_IMAGE_ASPECT_RATIO = "4:3";
+const SEWING_PATTERN_PROMPT = [
+  "Create a clean printable sewing pattern template based on the provided emotion-plushie shape reference. Use the exact silhouette of the character's body shape from the reference image, and convert it into a flat 2D sewing pattern.",
+  "",
+  "Show two separate fabric pattern pieces side by side on a plain white background. The two pieces should be mirrored counterparts of each other, matching the plushie body shape exactly. For each piece:",
+  "",
+  "- draw a solid black inner outline that represents the sewing/stitching line",
+  "- leave a consistent seam allowance outside that line",
+  "- draw a second outer outline in black dashed line that follows the same shape contour evenly outside the solid line",
+  "- the dashed outer line is the cutting line",
+  "- the solid inner line is the sewing line",
+  "",
+  "The pattern should be minimal, precise, and easy to follow, like a real sewing pattern sheet. Use only black linework on a white background. Do not include any color, shading, plush texture, facial features, text labels, arrows, measurements, grid, or decorative elements. The result should look like a clean monochrome technical pattern for cutting and sewing a plush doll body."
+].join("\n");
 
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
@@ -148,9 +162,17 @@ async function handleGenerateImage(request, response) {
   const prompt = buildImagePrompt(body);
   const boardImage = typeof body.boardImage === "string" ? body.boardImage : "";
 
-  const result = await callGeminiImageGeneration(apiKey, prompt, boardImage);
+  const plushieResult = await callGeminiImageGeneration(apiKey, prompt, boardImage);
+  const patternResult = await callGeminiImageGeneration(
+    apiKey,
+    SEWING_PATTERN_PROMPT,
+    plushieResult.imageUrl
+  );
 
-  sendJson(response, 200, result);
+  sendJson(response, 200, {
+    imageUrl: plushieResult.imageUrl,
+    patternImageUrl: patternResult.imageUrl
+  });
 }
 
 async function handleEmotionChat(request, response) {
@@ -282,7 +304,10 @@ async function callGeminiGenerateContent(apiKey, rawModel, parts) {
           }
         ],
         generationConfig: {
-          responseModalities: ["TEXT", "IMAGE"]
+          responseModalities: ["TEXT", "IMAGE"],
+          imageConfig: {
+            aspectRatio: GENERATED_IMAGE_ASPECT_RATIO
+          }
         }
       })
     }

@@ -3,6 +3,7 @@ const canvas = document.querySelector(".drawing-canvas");
 const context = canvas.getContext("2d");
 const generateButton = document.querySelector(".generate-button");
 const generateStatus = document.querySelector(".generate-status");
+const generationBreathingOverlay = document.querySelector(".generation-breathing-overlay");
 const brushToggle = document.querySelector(".brush-toggle");
 const brushPulse = document.querySelector(".brush-pulse");
 const instructionCloud = document.querySelector(".instruction-cloud");
@@ -386,15 +387,15 @@ document.addEventListener("pointercancel", cancelDrag);
 
 generateButton.addEventListener("click", async () => {
   generateButton.disabled = true;
-  generateButton.textContent = window.sewingI18n.t("Generating...");
-  generateStatus.textContent = window.sewingI18n.t("Preparing your drawing board...");
+  generateButton.hidden = true;
+  generateStatus.textContent = "";
+  generationBreathingOverlay.hidden = false;
 
   try {
     const drawingRect = drawingSurface.getBoundingClientRect();
     composition.aspectRatio = drawingRect.width / drawingRect.height;
     saveComposition(composition);
     const boardImage = await exportBoardImage();
-    generateStatus.textContent = window.sewingI18n.t("Asking Gemini to reinterpret your shape...");
 
     const response = await fetch("/api/generate-image", {
       method: "POST",
@@ -412,12 +413,19 @@ generateButton.addEventListener("click", async () => {
       throw new Error(data.error || "Image generation failed.");
     }
 
+    if (!data.imageUrl || !data.patternImageUrl) {
+      throw new Error("The image generator did not return the complete image pair.");
+    }
+
+    await window.sewingGeneratedImageStorage.storePatternImage(data.patternImageUrl);
     localStorage.setItem("sewing-emotions-generated-image", data.imageUrl);
     localStorage.removeItem("sewing-emotions-current-character");
     window.location.href = "step4.html";
   } catch (error) {
+    generationBreathingOverlay.hidden = true;
     generateStatus.textContent = error.message;
     generateButton.disabled = false;
+    generateButton.hidden = false;
     generateButton.textContent = window.sewingI18n.t("Generate");
   }
 });

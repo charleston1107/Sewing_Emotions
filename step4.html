@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=37">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body class="editor-page result-page">
   <a class="last-step-button" href="step3.html">Last Step</a>
@@ -22,11 +22,21 @@
       </ol>
     </nav>
 
-    <section class="editor-frame result-frame" aria-label="Generated emotion image"></section>
+    <section class="result-pair" aria-label="Generated plushie and sewing pattern">
+      <article class="result-image-panel">
+        <h1 class="result-image-title">Plushie Reference</h1>
+        <div class="result-image-frame result-plushie-frame" aria-label="Generated plushie reference"></div>
+      </article>
+      <article class="result-image-panel">
+        <h1 class="result-image-title">Fabric's Sewing Pattern</h1>
+        <div class="result-image-frame result-pattern-frame" aria-label="Generated fabric sewing pattern"></div>
+      </article>
+    </section>
     <a class="finish-button result-next-button" href="sewing.html">Next</a>
   </main>
 
-  <script src="language.js?v=2"></script>
-  <script src="step4.js?v=22"></script>
+  <script src="language.js?v=3"></script>
+  <script src="generated-image-storage.js?v=1"></script>
+  <script src="step4.js?v=23"></script>
 </body>
 </html>

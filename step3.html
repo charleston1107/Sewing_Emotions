@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=37">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body class="editor-page face-step-page">
   <a class="last-step-button" href="step2.html">Last Step</a>
@@ -62,11 +62,17 @@
     </aside>
 
     <button class="generate-button" type="button">Generate</button>
+    <div class="generation-breathing-overlay" aria-live="polite" hidden>
+      <div class="generation-breathing-circle">
+        <span>Generating...</span>
+      </div>
+    </div>
     <p class="generate-status" aria-live="polite"></p>
   </main>
 
   <script src="shared.js?v=27"></script>
   <script src="language.js?v=2"></script>
-  <script src="step3.js?v=28"></script>
+  <script src="generated-image-storage.js?v=1"></script>
+  <script src="step3.js?v=30"></script>
 </body>
 </html>

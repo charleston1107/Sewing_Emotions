@@ -1433,6 +1433,45 @@ html[lang="zh-CN"] .account-intro h1 {
   transform: translateX(-50%);
 }
 
+.generation-breathing-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  display: grid;
+  place-items: center;
+  cursor: wait;
+  pointer-events: auto;
+}
+
+.generation-breathing-overlay[hidden] {
+  display: none;
+}
+
+.generation-breathing-circle {
+  display: grid;
+  place-items: center;
+  width: clamp(220px, 34vw, 320px);
+  aspect-ratio: 1;
+  padding: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 42px 24px rgba(255, 255, 255, 0.32);
+  animation: breatheCircle 5s ease-in-out infinite;
+}
+
+.generation-breathing-circle span {
+  display: block;
+  width: 72%;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(0.9rem, 1.4vw, 1.08rem);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  animation: generationTextBreathe 5s ease-in-out infinite;
+}
+
 .generated-result {
   position: absolute;
   right: clamp(18px, 4vw, 56px);
@@ -1641,10 +1680,47 @@ html[lang="zh-CN"] .account-intro h1 {
   grid-template-columns: 20vw 60vw 20vw;
 }
 
-.result-frame {
-  grid-column: 2;
+.result-pair {
+  grid-column: 1 / -1;
+  align-self: start;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(22px, 3.5vw, 54px);
+  justify-self: center;
+  width: min(92vw, 1280px);
+  margin-top: var(--editor-frame-top);
+}
+
+.result-image-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+
+.result-image-title {
+  margin: 0;
+  color: var(--brown);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(1.18rem, 1.8vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+}
+
+html[lang="zh-CN"] .result-image-title {
+  font-size: clamp(1.04rem, 1.55vw, 1.38rem);
+}
+
+.result-image-frame {
   display: grid;
   place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.66), 0 20px 38px rgba(96, 59, 39, 0.11);
+  overflow: hidden;
 }
 
 .result-next-button {
@@ -1655,6 +1731,7 @@ html[lang="zh-CN"] .account-intro h1 {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  background: #FFFFFF;
 }
 
 .step4-empty-message {
@@ -1663,6 +1740,25 @@ html[lang="zh-CN"] .account-intro h1 {
   font-family: "Instrument Sans", sans-serif;
   font-size: 1rem;
   font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .result-page {
+    overflow-y: auto;
+  }
+
+  .result-stage {
+    display: block;
+    min-height: 100vh;
+    padding: 0 18px 110px;
+  }
+
+  .result-pair {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    width: min(100%, 560px);
+    margin: var(--editor-frame-top) auto 0;
+  }
 }
 
 .sewing-stage {
@@ -2761,6 +2857,17 @@ html[lang="zh-CN"] .library-collection-header h1 {
 
   100% {
     width: clamp(220px, 34vw, 320px);
+  }
+}
+
+@keyframes generationTextBreathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
   }
 }
 
