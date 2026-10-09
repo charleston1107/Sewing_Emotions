@@ -7,13 +7,113 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=41">
+  <link rel="stylesheet" href="styles.css?v=43">
 </head>
-<body class="editor-page sewing-resource-page blank-page">
+<body class="editor-page sewing-resource-page tutorial-page">
   <a class="last-step-button" href="sewing.html">Back to Sewing</a>
   <button class="account-entry-link language-toggle" type="button" aria-label="Switch language">EN/中文</button>
-  <main aria-label="Supplementary Tutorial Videos"></main>
+  <main class="tutorial-library" aria-label="Supplementary Tutorial Videos">
+    <section class="plushie-methods" aria-labelledby="plushie-methods-title">
+      <header class="tutorial-section-heading">
+        <p>Making guide</p>
+        <h1 id="plushie-methods-title">Two ways to make your plushie</h1>
+        <span>Choose the method that matches the material you want to use.</span>
+      </header>
 
-  <script src="language.js?v=4"></script>
+      <div class="plushie-method-grid">
+        <article class="plushie-method-card felt-method-card">
+          <div class="method-card-heading">
+            <p>Method 1</p>
+            <h2>Felt plushie</h2>
+            <span>No turning inside out</span>
+          </div>
+          <img class="method-hero-image" src="assets/tutorials/felt-plush.jpg" width="1600" height="1350" alt="Blue felt plushie sewn with visible edge stitches">
+          <dl class="stitch-definition-list">
+            <div>
+              <dt>Running stitch</dt>
+              <dd>Attach one felt piece directly onto another felt piece.</dd>
+            </div>
+            <div>
+              <dt>Blanket stitch</dt>
+              <dd>Sew visibly around the outside edge of the plushie.</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="plushie-method-card fabric-method-card">
+          <div class="method-card-heading">
+            <p>Method 2</p>
+            <h2>Fabric plushie</h2>
+            <span>Turn the plushie inside out</span>
+          </div>
+          <p class="fabric-method-summary">All three fabric plushies use running stitch and hidden stitch.</p>
+          <div class="fabric-example-grid">
+            <figure>
+              <img src="assets/tutorials/fabric-plush-grey.jpg" width="1090" height="1600" alt="Grey fabric plushie">
+              <figcaption>Running stitch + hidden stitch</figcaption>
+            </figure>
+            <figure>
+              <img src="assets/tutorials/fabric-plush-white.jpg" width="1600" height="1452" alt="White fabric plushie">
+              <figcaption>Running stitch + hidden stitch</figcaption>
+            </figure>
+            <figure class="whip-stitch-example">
+              <img src="assets/tutorials/fabric-plush-brown.jpg" width="1600" height="1296" alt="Brown fabric plushie with an attached ear">
+              <figcaption>Running stitch + hidden stitch + whip stitch</figcaption>
+            </figure>
+          </div>
+          <dl class="stitch-definition-list fabric-stitch-list">
+            <div>
+              <dt>Running stitch - before turning</dt>
+              <dd>Place the two fabric pieces back-to-back and sew them together.</dd>
+            </div>
+            <div>
+              <dt>Hidden stitch - after turning</dt>
+              <dd>Close the small opening that was left for turning and stuffing.</dd>
+            </div>
+            <div>
+              <dt>Whip stitch - bottom example only</dt>
+              <dd>Attach the extra ear to the main plushie body.</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <section class="video-tutorials" aria-labelledby="video-tutorials-title">
+      <header class="tutorial-section-heading">
+        <p>Video references</p>
+        <h2 id="video-tutorials-title">Supplementary tutorial videos</h2>
+        <span>Select an image or its button to open the corresponding tutorial.</span>
+      </header>
+
+      <div class="video-tutorial-grid">
+        <article class="video-tutorial-card">
+          <a class="library-nav-button tutorial-watch-button" href="https://www.xiaohongshu.com/explore/6a75ac2e000000002402c6ed?xsec_token=ABcMKQhCDbQNbROttEYKMvug-Kjse14zbYHzxh3ejx_k4=&amp;xsec_source=pc_share&amp;source=webshare" target="_blank" rel="noopener noreferrer">Watch Tutorial</a>
+          <a class="tutorial-image-link" href="https://www.xiaohongshu.com/explore/6a75ac2e000000002402c6ed?xsec_token=ABcMKQhCDbQNbROttEYKMvug-Kjse14zbYHzxh3ejx_k4=&amp;xsec_source=pc_share&amp;source=webshare" target="_blank" rel="noopener noreferrer" aria-label="Open needle techniques and knot-tying tutorial">
+            <img src="assets/tutorials/video-stitches.jpg" width="898" height="1188" alt="Running stitch tutorial preview">
+          </a>
+          <p>Needle techniques and knot-tying tutorial</p>
+        </article>
+
+        <article class="video-tutorial-card">
+          <a class="library-nav-button tutorial-watch-button" href="https://www.xiaohongshu.com/discovery/item/6a2c9bc40000000035033a86?source=webshare&amp;xhsshare=pc_web&amp;xsec_token=ABQVadKucrbs3O24L1JcZkJmTML9ASSFWBxtdwQ-0QXNc=&amp;xsec_source=pc_share" target="_blank" rel="noopener noreferrer">Watch Tutorial</a>
+          <a class="tutorial-image-link" href="https://www.xiaohongshu.com/discovery/item/6a2c9bc40000000035033a86?source=webshare&amp;xhsshare=pc_web&amp;xsec_token=ABQVadKucrbs3O24L1JcZkJmTML9ASSFWBxtdwQ-0QXNc=&amp;xsec_source=pc_share" target="_blank" rel="noopener noreferrer" aria-label="Open plush doll sewing tutorial">
+            <img src="assets/tutorials/video-doll.jpg" width="1172" height="1548" alt="Finished potato-shaped plush dolls">
+          </a>
+          <p>How to sew a plush doll</p>
+        </article>
+
+        <article class="video-tutorial-card">
+          <a class="library-nav-button tutorial-watch-button" href="https://www.xiaohongshu.com/discovery/item/6896ab3d000000000400310e?source=webshare&amp;xhsshare=pc_web&amp;xsec_token=ABBsyfT8HnyD82u9jrGD7mNVdR6bQDYT_UFIV_9399fJQ=&amp;xsec_source=pc_share" target="_blank" rel="noopener noreferrer">Watch Tutorial</a>
+          <a class="tutorial-image-link" href="https://www.xiaohongshu.com/discovery/item/6896ab3d000000000400310e?source=webshare&amp;xhsshare=pc_web&amp;xsec_token=ABBsyfT8HnyD82u9jrGD7mNVdR6bQDYT_UFIV_9399fJQ=&amp;xsec_source=pc_share" target="_blank" rel="noopener noreferrer" aria-label="Open felt blanket stitch tutorial">
+            <img src="assets/tutorials/video-blanket-stitch.jpg" width="1582" height="1046" alt="Felt blanket stitch tutorial preview">
+          </a>
+          <p>Felt blanket stitch tutorial</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="language.js?v=6"></script>
 </body>
 </html>
