@@ -1771,6 +1771,16 @@ html[lang="zh-CN"] .result-image-title {
   overflow: hidden;
 }
 
+.sewing-resource-navigation {
+  position: fixed;
+  top: 22px;
+  left: 24px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .sewing-completion-layout {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1868,6 +1878,19 @@ html[lang="zh-CN"] .result-image-title {
 
   .sewing-breathing-circle {
     width: min(68vw, 300px);
+  }
+
+  .sewing-resource-navigation {
+    right: 98px;
+    left: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sewing-resource-navigation .library-nav-button {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.72rem;
   }
 }
 
@@ -2699,6 +2722,10 @@ html[lang="zh-CN"] .library-collection-header h1 {
   padding: 38px 34px;
 }
 
+.character-page .character-chat-bubble p {
+  transform: translateY(8px);
+}
+
 .character-thought-bubble .instruction-cloud-shape {
   overflow: visible;
 }
@@ -2803,6 +2830,103 @@ html[lang="zh-CN"] .library-collection-header h1 {
 
 .blank-page main {
   min-height: 100vh;
+}
+
+.sewing-handbook-page {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.handbook-reader {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(104px, 13vh, 142px) 3vw clamp(100px, 14vh, 170px);
+}
+
+.handbook-spread {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(94vw, 1180px);
+  isolation: isolate;
+  filter: drop-shadow(0 28px 32px rgba(96, 59, 39, 0.2));
+}
+
+.handbook-spread + .handbook-spread {
+  margin-top: clamp(120px, 18vh, 220px);
+}
+
+.handbook-spread::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 3;
+  width: 16px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    rgba(96, 59, 39, 0.12),
+    rgba(255, 255, 255, 0.52) 44%,
+    rgba(96, 59, 39, 0.13)
+  );
+  opacity: 0.6;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.handbook-page {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  background: #FFFDF5;
+}
+
+.handbook-page-left {
+  border-radius: 14px 1px 1px 14px;
+  transform: perspective(1800px) rotateY(1.2deg);
+  transform-origin: right center;
+}
+
+.handbook-page-right {
+  border-radius: 1px 14px 14px 1px;
+  transform: perspective(1800px) rotateY(-1.2deg);
+  transform-origin: left center;
+}
+
+.handbook-page img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 720px) {
+  .handbook-reader {
+    padding: 102px 10px 90px;
+  }
+
+  .handbook-spread {
+    width: 100%;
+  }
+
+  .handbook-spread + .handbook-spread {
+    margin-top: 90px;
+  }
+
+  .handbook-spread::after {
+    width: 9px;
+  }
+
+  .handbook-page-left {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .handbook-page-right {
+    border-radius: 0 8px 8px 0;
+  }
 }
 
 @keyframes titleFloat {
