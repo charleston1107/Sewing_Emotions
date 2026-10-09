@@ -23,10 +23,13 @@ const libraryInput = document.querySelector(".character-text-input");
 const librarySendButton = document.querySelector(".character-send-button");
 const memoryNavigationButton = document.querySelector('[data-library-nav="memory"]');
 const chatNavigationButton = document.querySelector('[data-library-nav="chat"]');
+const i18n = window.sewingI18n;
 
 let character = null;
 let libraryReady = false;
 let collectionCharacters = [];
+let collectionLoaded = false;
+let collectionRequiresLogin = false;
 
 const libraryParams = new URLSearchParams(window.location.search);
 const requestedCharacterId = libraryParams.get("character") || "";
@@ -37,20 +40,22 @@ const libraryInitialization = requestedCharacterId
 
 async function initializeCollection() {
   showLibraryView("collection");
-  libraryStatus.textContent = "Opening your library...";
+  libraryStatus.textContent = i18n.t("Opening your library...");
 
   try {
     const result = await listCharactersFromAccount();
 
     if (result.requiresLogin) {
+      collectionRequiresLogin = true;
       renderLoginRequired();
       return;
     }
 
     collectionCharacters = result.characters;
+    collectionLoaded = true;
     renderCollectionCards();
   } catch (error) {
-    libraryStatus.textContent = `Your library could not load. ${error.message}`;
+    libraryStatus.textContent = i18n.t("library.openError", { error: error.message });
   }
 }
 
@@ -60,14 +65,14 @@ async function initializeCharacterDetail(characterId, view) {
     resizeLibraryInput();
     setChatEnabled(false);
   } else {
-    memoryViewStatus.textContent = "Opening this emotion box...";
+    memoryViewStatus.textContent = i18n.t("library.openingBox");
   }
 
   try {
     character = await loadCharacterFromAccount(characterId);
 
     if (!character) {
-      const message = "This character was not found, or you need to log in to open it.";
+      const message = i18n.t("library.characterMissing");
       if (view === "chat") {
         libraryBubble.textContent = message;
       } else {
@@ -87,7 +92,7 @@ async function initializeCharacterDetail(characterId, view) {
       memoryViewStatus.textContent = "";
     }
   } catch (error) {
-    const message = `This character could not load. ${error.message}`;
+    const message = i18n.t("library.characterLoadError", { error: error.message });
     if (view === "chat") {
       libraryBubble.textContent = message;
     } else {
@@ -111,8 +116,8 @@ function showLibraryView(view) {
 function renderCollectionCards() {
   libraryGrid.innerHTML = "";
   libraryStatus.textContent = collectionCharacters.length === 1
-    ? "1 emotion character"
-    : `${collectionCharacters.length} emotion characters`;
+    ? i18n.t("library.count.one")
+    : i18n.t("library.count.many", { count: collectionCharacters.length });
   libraryEmptyState.hidden = collectionCharacters.length > 0;
 
   collectionCharacters.forEach((savedCharacter) => {
@@ -139,19 +144,21 @@ function createCharacterCard(savedCharacter) {
     imageFrame.appendChild(image);
   } else {
     const placeholder = document.createElement("span");
-    placeholder.textContent = "A feeling lives here";
+    placeholder.textContent = i18n.t("A feeling lives here");
     imageFrame.appendChild(placeholder);
   }
 
   const text = document.createElement("div");
   text.className = "library-card-copy";
   const name = document.createElement("h2");
-  name.textContent = savedCharacter.name;
+  name.textContent = isUnnamedCharacterName(savedCharacter.name || "")
+    ? i18n.t("My emotion")
+    : savedCharacter.name;
   const emotion = document.createElement("p");
   emotion.textContent = emotionDescription(savedCharacter.emotionHints);
   const date = document.createElement("time");
   date.dateTime = savedCharacter.updatedAt;
-  date.textContent = `Last visited ${formatLibraryDate(savedCharacter.updatedAt)}`;
+  date.textContent = i18n.t("library.lastVisited", { date: formatLibraryDate(savedCharacter.updatedAt) });
   text.append(name, emotion, date);
   openLink.append(imageFrame, text);
 
@@ -161,12 +168,12 @@ function createCharacterCard(savedCharacter) {
   const renameButton = document.createElement("button");
   renameButton.type = "button";
   renameButton.dataset.action = "rename";
-  renameButton.textContent = "Rename";
+  renameButton.textContent = i18n.t("Rename");
 
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete";
-  deleteButton.textContent = "Delete";
+  deleteButton.textContent = i18n.t("Delete");
 
   actions.append(renameButton, deleteButton);
 
@@ -181,11 +188,11 @@ function createCharacterCard(savedCharacter) {
   renameInput.setAttribute("aria-label", `New name for ${savedCharacter.name}`);
   const saveButton = document.createElement("button");
   saveButton.type = "submit";
-  saveButton.textContent = "Save";
+  saveButton.textContent = i18n.t("Save");
   const cancelButton = document.createElement("button");
   cancelButton.type = "button";
   cancelButton.dataset.action = "cancel-rename";
-  cancelButton.textContent = "Cancel";
+  cancelButton.textContent = i18n.t("Cancel");
   const renameMessage = document.createElement("p");
   renameMessage.className = "library-card-message";
   renameMessage.setAttribute("aria-live", "polite");
@@ -198,17 +205,19 @@ function createCharacterCard(savedCharacter) {
 function renderLoginRequired() {
   libraryGrid.innerHTML = "";
   libraryEmptyState.hidden = true;
-  libraryStatus.textContent = "Log in to open your private emotion library.";
+  libraryStatus.textContent = i18n.t("Log in to open your private emotion library.");
 
   const loginLink = document.createElement("a");
   loginLink.className = "library-login-button";
   loginLink.href = "account.html?returnTo=%2Femo_library.html";
-  loginLink.textContent = "Log in or create an account";
+  loginLink.textContent = i18n.t("Log in or create an account");
   libraryGrid.appendChild(loginLink);
 }
 
 function renderCharacterDetail() {
-  libraryDetailName.textContent = character.name || "My emotion";
+  libraryDetailName.textContent = isUnnamedCharacterName(character.name || "")
+    ? i18n.t("My emotion")
+    : character.name;
   renderCharacterDesign(libraryDesignSurface, character.designChoices?.composition);
 
   const lastAssistantMessage = character.messages
@@ -268,7 +277,7 @@ function renderMemoryTranscript() {
   if (messages.length === 0) {
     const emptyMessage = document.createElement("p");
     emptyMessage.className = "memory-transcript-empty";
-    emptyMessage.textContent = "No saved conversation yet.";
+    emptyMessage.textContent = i18n.t("No saved conversation yet.");
     memoryTranscript.appendChild(emptyMessage);
     return;
   }
@@ -280,7 +289,7 @@ function renderMemoryTranscript() {
 
     const role = document.createElement("p");
     role.className = "memory-message-role";
-    role.textContent = isAssistant ? "Emotion" : "You";
+    role.textContent = i18n.t(isAssistant ? "Emotion" : "You");
 
     const content = document.createElement("p");
     content.className = "memory-message-content";
@@ -297,7 +306,7 @@ function formatMemoryDate(value) {
     return "—";
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(i18n.language === "cn" ? "zh-CN" : "en-US", {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(date);
@@ -310,10 +319,12 @@ function isUnnamedCharacterName(name) {
 function emotionDescription(emotionHints) {
   const ranked = Array.isArray(emotionHints?.ranked) ? emotionHints.ranked : [];
   if (!ranked.length) {
-    return "An emotion still finding its name";
+    return i18n.t("library.unnamed");
   }
 
-  return `May be holding ${ranked.slice(0, 2).map((hint) => hint.emotion).join(" and ")}`;
+  return i18n.t("library.mayHold", {
+    emotions: ranked.slice(0, 2).map((hint) => hint.emotion).join(i18n.language === "cn" ? "、" : " and ")
+  });
 }
 
 function formatLibraryDate(value) {
@@ -322,7 +333,7 @@ function formatLibraryDate(value) {
     return "recently";
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(i18n.language === "cn" ? "zh-CN" : "en-US", {
     month: "short",
     day: "numeric",
     year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric"
@@ -365,7 +376,7 @@ memoryNameForm.addEventListener("submit", async (event) => {
   const input = memoryNameForm.elements.characterName;
   const nextName = input.value.trim();
   if (!character || !nextName) {
-    memoryNameMessage.textContent = "Please give this emotion a name.";
+    memoryNameMessage.textContent = i18n.t("Please give this emotion a name.");
     return;
   }
 
@@ -373,7 +384,7 @@ memoryNameForm.addEventListener("submit", async (event) => {
   buttons.forEach((button) => {
     button.disabled = true;
   });
-  memoryNameMessage.textContent = "Saving name...";
+  memoryNameMessage.textContent = i18n.t("Saving name...");
 
   try {
     const result = await renameCharacterInAccount(character.id, nextName);
@@ -454,7 +465,7 @@ libraryGrid.addEventListener("submit", async (event) => {
   }
 
   setFormBusy(form, true);
-  message.textContent = "Saving name...";
+  message.textContent = i18n.t("Saving name...");
 
   try {
     await renameCharacterInAccount(savedCharacter.id, name);
@@ -542,14 +553,14 @@ function setRenameFormOpen(card, open) {
 }
 
 async function deleteCollectionCharacter(savedCharacter, card) {
-  const confirmed = window.confirm(`Delete ${savedCharacter.name} and all of this character's conversations? This cannot be undone.`);
+  const confirmed = window.confirm(i18n.t("library.deleteConfirm", { name: savedCharacter.name }));
   if (!confirmed) {
     return;
   }
 
   const deleteButton = card.querySelector('[data-action="delete"]');
   deleteButton.disabled = true;
-  deleteButton.textContent = "Deleting...";
+  deleteButton.textContent = i18n.t("Deleting...");
 
   try {
     const result = await deleteCharacterFromAccount(savedCharacter.id, savedCharacter.imagePath);
@@ -560,9 +571,9 @@ async function deleteCollectionCharacter(savedCharacter, card) {
     collectionCharacters = collectionCharacters.filter((item) => item.id !== savedCharacter.id);
     renderCollectionCards();
   } catch (error) {
-    libraryStatus.textContent = `The character could not be deleted. ${error.message}`;
+    libraryStatus.textContent = i18n.t("library.deleteError", { error: error.message });
     deleteButton.disabled = false;
-    deleteButton.textContent = "Delete";
+    deleteButton.textContent = i18n.t("Delete");
   }
 }
 
@@ -571,3 +582,17 @@ function setFormBusy(form, busy) {
     control.disabled = busy;
   });
 }
+
+window.addEventListener("sewing-language-change", () => {
+  if (!collectionView.hidden) {
+    if (collectionRequiresLogin) {
+      renderLoginRequired();
+    } else if (collectionLoaded) {
+      renderCollectionCards();
+    }
+  } else if (!memoryView.hidden && character) {
+    renderMemoryDetail();
+  } else if (!chatView.hidden && character && isUnnamedCharacterName(character.name || "")) {
+    libraryDetailName.textContent = i18n.t("My emotion");
+  }
+});

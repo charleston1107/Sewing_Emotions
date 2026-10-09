@@ -10,7 +10,7 @@ if (generatedImage) {
 } else {
   const message = document.createElement("p");
   message.className = "sewing-empty-message";
-  message.textContent = "No generated image yet.";
+  message.textContent = window.sewingI18n.t("No generated image yet.");
   generatedFrame.appendChild(message);
 }
 

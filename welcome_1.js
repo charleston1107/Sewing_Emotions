@@ -21,7 +21,7 @@ function showWelcomeLine() {
   }
 
   const line = welcomeLines[welcomeIndex];
-  welcomeLine.textContent = line.text;
+  welcomeLine.textContent = window.sewingI18n.t(line.text);
   welcomeLine.classList.remove("is-visible");
 
   window.requestAnimationFrame(() => {

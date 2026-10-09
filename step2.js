@@ -116,7 +116,7 @@ function updateInstructionCloud() {
   instructionCloud.classList.toggle("is-hidden", colorInstructionsComplete);
 
   if (!colorInstructionsComplete) {
-    instructionCloudText.textContent = COLOR_INSTRUCTIONS[colorInstructionStep];
+    instructionCloudText.textContent = window.sewingI18n.t(COLOR_INSTRUCTIONS[colorInstructionStep]);
   }
 }
 
@@ -136,6 +136,7 @@ function completeColorInstructions() {
 }
 
 instructionCloudSkip.addEventListener("click", completeColorInstructions);
+window.addEventListener("sewing-language-change", updateInstructionCloud);
 
 renderColorGalleries();
 updateInstructionCloud();

@@ -27,6 +27,10 @@ modeButtons.forEach((button) => {
   });
 });
 
+window.addEventListener("sewing-language-change", () => {
+  submitButton.textContent = window.sewingI18n.t(accountMode === "signup" ? "Create account" : "Log in");
+});
+
 accountForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   clearMessage();
@@ -61,7 +65,7 @@ logoutButton.addEventListener("click", async () => {
       throw error;
     }
     showSignedOut();
-    showMessage("You have been logged out.", "success");
+    showMessage(window.sewingI18n.t("account.loggedOut"), "success");
   } catch (error) {
     showMessage(friendlyAuthError(error), "error");
   } finally {
@@ -126,7 +130,7 @@ async function createAccount(email, password) {
   }
 
   accountForm.reset();
-  showMessage("Check your email to confirm your account. You can return here after confirming it.", "success");
+  showMessage(window.sewingI18n.t("account.confirmEmail"), "success");
 }
 
 async function signIn(email, password) {
@@ -152,14 +156,14 @@ function setAccountMode(mode) {
 
   nameField.hidden = !signingUp;
   passwordInput.autocomplete = signingUp ? "new-password" : "current-password";
-  submitButton.textContent = signingUp ? "Create account" : "Log in";
+  submitButton.textContent = window.sewingI18n.t(signingUp ? "Create account" : "Log in");
   clearMessage();
 }
 
 function showSignedIn(user) {
   accountFormView.hidden = true;
   signedInView.hidden = false;
-  userEmail.textContent = user.email || "Your account";
+  userEmail.textContent = user.email || window.sewingI18n.t("account.yourAccount");
   continueButton.href = safeReturnPath() || "emo_library.html";
 }
 
@@ -214,10 +218,12 @@ function clearMessage() {
 function friendlyAuthError(error) {
   const message = String(error?.message || "Something went wrong. Please try again.");
   if (message.toLowerCase().includes("invalid login credentials")) {
-    return "That email and password did not match. Please try again.";
+    return window.sewingI18n.t("That email and password did not match. Please try again.");
   }
   if (message.toLowerCase().includes("email not confirmed")) {
-    return "Please confirm your email before logging in.";
+    return window.sewingI18n.t("Please confirm your email before logging in.");
   }
-  return message;
+  return message === "Something went wrong. Please try again."
+    ? window.sewingI18n.t(message)
+    : message;
 }

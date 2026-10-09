@@ -10,6 +10,6 @@ if (imageUrl) {
 } else {
   const message = document.createElement("p");
   message.className = "step4-empty-message";
-  message.textContent = "No generated image yet.";
+  message.textContent = window.sewingI18n.t("No generated image yet.");
   resultFrame.appendChild(message);
 }

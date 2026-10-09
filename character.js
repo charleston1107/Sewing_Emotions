@@ -7,6 +7,10 @@ const finishButton = document.querySelector(".character-finish-button");
 let character = loadCurrentCharacter();
 let savingCharacter = false;
 
+window.addEventListener("sewing-language-change", () => {
+  finishButton.textContent = window.sewingI18n.t(savingCharacter ? "Saving..." : "Finish");
+});
+
 if (!Array.isArray(character.designChoices?.composition?.parts)) {
   character.designChoices = {
     ...character.designChoices,
@@ -100,7 +104,7 @@ async function finishCharacter() {
   try {
     savingCharacter = true;
     finishButton.disabled = true;
-    finishButton.textContent = "Saving...";
+    finishButton.textContent = window.sewingI18n.t("Saving...");
 
     const result = await saveCharacterToAccount(character);
 
@@ -115,7 +119,7 @@ async function finishCharacter() {
     chatBubble.textContent = `I am still safe in this browser, but I could not save to your account yet. ${error.message}`;
     savingCharacter = false;
     finishButton.disabled = false;
-    finishButton.textContent = "Finish";
+    finishButton.textContent = window.sewingI18n.t("Finish");
   }
 }
 

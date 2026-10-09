@@ -289,7 +289,7 @@ function updateInstructionCloud() {
   instructionCloud.classList.toggle("is-hidden", faceInstructionsComplete);
 
   if (!faceInstructionsComplete) {
-    instructionCloudText.textContent = FACE_INSTRUCTIONS[faceInstructionStep];
+    instructionCloudText.textContent = window.sewingI18n.t(FACE_INSTRUCTIONS[faceInstructionStep]);
   }
 }
 
@@ -310,6 +310,10 @@ function completeFaceInstructions() {
 }
 
 instructionCloudSkip.addEventListener("click", completeFaceInstructions);
+window.addEventListener("sewing-language-change", () => {
+  updateInstructionCloud();
+  generateButton.textContent = window.sewingI18n.t(generateButton.disabled ? "Generating..." : "Generate");
+});
 
 brushToggle.addEventListener("click", () => {
   setDrawingEnabled(!drawingEnabled);
@@ -382,15 +386,15 @@ document.addEventListener("pointercancel", cancelDrag);
 
 generateButton.addEventListener("click", async () => {
   generateButton.disabled = true;
-  generateButton.textContent = "Generating...";
-  generateStatus.textContent = "Preparing your drawing board...";
+  generateButton.textContent = window.sewingI18n.t("Generating...");
+  generateStatus.textContent = window.sewingI18n.t("Preparing your drawing board...");
 
   try {
     const drawingRect = drawingSurface.getBoundingClientRect();
     composition.aspectRatio = drawingRect.width / drawingRect.height;
     saveComposition(composition);
     const boardImage = await exportBoardImage();
-    generateStatus.textContent = "Asking Gemini to reinterpret your shape...";
+    generateStatus.textContent = window.sewingI18n.t("Asking Gemini to reinterpret your shape...");
 
     const response = await fetch("/api/generate-image", {
       method: "POST",
@@ -414,7 +418,7 @@ generateButton.addEventListener("click", async () => {
   } catch (error) {
     generateStatus.textContent = error.message;
     generateButton.disabled = false;
-    generateButton.textContent = "Generate";
+    generateButton.textContent = window.sewingI18n.t("Generate");
   }
 });
 

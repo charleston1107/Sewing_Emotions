@@ -190,7 +190,7 @@ function updateInstructionCloud() {
   instructionCloud.classList.toggle("is-hidden", instructionsComplete);
 
   if (!instructionsComplete) {
-    instructionCloudText.textContent = INSTRUCTION_LINES[instructionStep];
+    instructionCloudText.textContent = window.sewingI18n.t(INSTRUCTION_LINES[instructionStep]);
   }
 }
 
@@ -398,6 +398,7 @@ finishButton.addEventListener("click", (event) => {
 instructionCloudSkip.addEventListener("click", () => {
   completeInstructions();
 });
+window.addEventListener("sewing-language-change", updateInstructionCloud);
 
 trashButton.addEventListener("click", deleteSelectedPart);
 
