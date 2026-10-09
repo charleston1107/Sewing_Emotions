@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=37">
 </head>
 <body class="editor-page library-page">
   <header class="library-page-navigation" aria-label="Page navigation">
@@ -17,7 +17,7 @@
       <a class="library-nav-button" data-library-nav="chat" href="emo_library.html" hidden>Return to Archive</a>
     </nav>
     <div class="library-page-navigation-right">
-      <button class="library-nav-button language-toggle" type="button" aria-label="Switch language">EN/CN</button>
+      <button class="library-nav-button language-toggle" type="button" aria-label="Switch language">EN/中文</button>
       <a class="library-nav-button" href="account.html">Account</a>
     </div>
   </header>
@@ -97,6 +97,7 @@
     </section>
 
     <section class="character-stage library-character-stage" data-library-view="chat" aria-label="Emotion character chat" hidden>
+      <img class="character-background-visual" src="assets/background_visual.png" alt="">
       <h1 class="library-detail-name"></h1>
       <section class="character-design-frame" aria-label="Your original emotion character design">
         <div class="character-design-surface"></div>
@@ -130,7 +131,7 @@
   <script src="emotion-data.js?v=27"></script>
   <script src="supabase-client.js?v=2"></script>
   <script src="character-storage.js?v=4"></script>
-  <script src="language.js?v=1"></script>
+  <script src="language.js?v=2"></script>
   <script src="emo_library.js?v=32"></script>
 </body>
 </html>

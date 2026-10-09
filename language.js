@@ -210,7 +210,7 @@
     translateTextNodes();
     translateAttributes();
     document.querySelectorAll(".language-toggle").forEach((button) => {
-      button.textContent = "EN/CN";
+      button.textContent = "EN/中文";
       button.setAttribute("aria-label", t("Switch language"));
       button.setAttribute("aria-pressed", String(language === "cn"));
     });

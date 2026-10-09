@@ -126,7 +126,11 @@ button {
 }
 
 .home-language-toggle {
-  right: 116px;
+  right: 124px;
+}
+
+html[lang="zh-CN"] .home-language-toggle {
+  right: 108px;
 }
 
 .account-page {
@@ -171,6 +175,14 @@ button {
   font-family: "Avant Garde Demi", "Avant Garde Normal", sans-serif;
   font-size: clamp(3.2rem, 10vw, 5.2rem);
   line-height: 0.92;
+}
+
+html[lang="zh-CN"] .account-intro h1 {
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .account-description {
@@ -1382,12 +1394,6 @@ button {
 
 .finish-button.editor-finish {
   bottom: 24px;
-  min-width: 142px;
-  padding: 13px 28px;
-  font-family: "Instrument Sans", sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.1;
 }
 
 .generate-button {
@@ -1730,6 +1736,18 @@ button {
   bottom: 24px;
 }
 
+.finish-button.editor-finish,
+.generate-button,
+.result-next-button,
+.sewing-finish-button {
+  min-width: 160px;
+  padding: 11px 30px 12px;
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(1.3rem, 2vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
 @media (max-width: 720px) {
   .sewing-stage {
     align-items: start;
@@ -1765,6 +1783,19 @@ button {
   width: 100vw;
   min-height: 100vh;
   padding: 0 0 92px;
+}
+
+.character-background-visual {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: min(90vw, 1100px);
+  height: 90vh;
+  object-fit: contain;
+  opacity: 0.86;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .character-generated-frame {
@@ -1830,6 +1861,13 @@ button {
   font-family: "Ramidots", cursive;
   font-size: clamp(4.2rem, 10vw, 7.4rem);
   line-height: 0.9;
+}
+
+html[lang="zh-CN"] .library-collection-header h1 {
+  font-family: "Instrument Sans", sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
 }
 
 .library-introduction {
